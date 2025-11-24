@@ -15,13 +15,13 @@ import org.springframework.context.annotation.Configuration;
                 version = "1.0.0",
                 description = "API RESTful para gerenciamento de clientes e produtos com autenticação JWT",
                 contact = @Contact(
-                        name = "Seu Nome / Grupo",
-                        email = "seu.email@exemplo.com"
+                        name = "Eduardo Sato",
+                        email = "eduardosato22@gmail.com"
                 )
         ),
         servers = {
                 @Server(url = "http://localhost:8080", description = "Servidor Local"),
-                @Server(url = "https://seu-backend.onrender.com", description = "Servidor de Produção")
+                @Server(url = "https://app-full-stack-crm.onrender.com", description = "Servidor de Produção")
         }
 )
 @SecurityScheme(
