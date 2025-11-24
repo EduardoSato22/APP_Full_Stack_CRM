@@ -1,4 +1,4 @@
-# Guia de Testes da RetailFlow API
+S# Guia de Testes da RetailFlow API
 
 Este roteiro consolida os cenários cobrados nos PDFs da disciplina e no Desafio Final.
 
