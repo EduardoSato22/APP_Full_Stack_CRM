@@ -5,11 +5,11 @@ services:
     image: postgres:15-alpine
     container_name: taskflow-postgres
     environment:
-      POSTGRES_DB: taskflowdb
-      POSTGRES_USER: taskflow
-      POSTGRES_PASSWORD: taskflow123
+      POSTGRES_DB: ${POSTGRES_DB:-taskflowdb}
+      POSTGRES_USER: ${POSTGRES_USER:-taskflow}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -21,13 +21,13 @@ services:
       dockerfile: Dockerfile
     container_name: taskflow-backend
     environment:
-      SPRING_PROFILES_ACTIVE: production
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/taskflowdb
-      SPRING_DATASOURCE_USERNAME: taskflow
-      SPRING_DATASOURCE_PASSWORD: taskflow123
-      JWT_SECRET: 5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-production}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:postgresql://postgres:5432/${POSTGRES_DB:-taskflowdb}}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-taskflow}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
     ports:
-      - "8080:8080"
+      - "${BACKEND_PORT:-8080}:8080"
     depends_on:
       - postgres
     networks:
@@ -39,9 +39,9 @@ services:
       dockerfile: Dockerfile
     container_name: taskflow-frontend
     environment:
-      VITE_API_URL: http://localhost:8080/api
+      VITE_API_URL: ${VITE_API_URL:-http://backend:8080/api}
     ports:
-      - "5173:80"
+      - "${FRONTEND_PORT:-5173}:80"
     depends_on:
       - backend
     networks:
