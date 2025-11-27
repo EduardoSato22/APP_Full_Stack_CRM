@@ -19,5 +19,7 @@ public class ProductRequest {
     @NotNull(message = "Preço é obrigatório")
     @DecimalMin(value = "0.0", inclusive = false, message = "Preço deve ser maior que zero")
     private BigDecimal price;
+
+    private String imageUrl;
 }
 
