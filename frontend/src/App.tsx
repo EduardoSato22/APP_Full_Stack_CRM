@@ -15,8 +15,10 @@ import {
   Box,
   Button,
   Card,
+  CardActions,
   CardContent,
   CardHeader,
+  CardMedia,
   Chip,
   CircularProgress,
   Container,
@@ -25,9 +27,9 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Divider,
   Grid,
   IconButton,
+  InputAdornment,
   Paper,
   Stack,
   TextField,
@@ -35,6 +37,8 @@ import {
   Toolbar,
   Typography,
   createTheme,
+  useMediaQuery,
+  alpha,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -44,6 +48,12 @@ import {
   PeopleAlt as PeopleIcon,
   Storefront as StoreIcon,
   TrendingUp as TrendingUpIcon,
+  Search as SearchIcon,
+  Image as ImageIcon,
+  Inventory2 as ProductIcon,
+  Email as EmailIcon,
+  Lock as LockIcon,
+  Person as PersonIcon,
 } from '@mui/icons-material';
 import { useForm } from 'react-hook-form';
 import {
@@ -55,20 +65,78 @@ import {
   useNavigate,
 } from 'react-router-dom';
 
+// --- TEMA E ESTILOS ---
 const theme = createTheme({
   palette: {
     mode: 'light',
-    primary: { main: '#154360' },
-    secondary: { main: '#F39C12' },
+    primary: {
+      main: '#0F172A', // Slate 900 (Modern Dark Blue)
+    },
+    secondary: {
+      main: '#4F46E5', // Indigo 600 (Vibrant Accent)
+    },
     background: {
-      default: '#f6f7fb',
+      default: '#F1F5F9', // Slate 100
+      paper: '#FFFFFF',
+    },
+    text: {
+      primary: '#1E293B',
+      secondary: '#64748B',
     },
   },
-  shape: { borderRadius: 12 },
+  shape: { borderRadius: 16 },
+  typography: {
+    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+    h4: { fontWeight: 700, letterSpacing: '-0.02em' },
+    h6: { fontWeight: 600 },
+    button: { textTransform: 'none', fontWeight: 600 },
+  },
+  components: {
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+          transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+          '&:hover': {
+            transform: 'translateY(-4px)',
+            boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+          },
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+          padding: '8px 16px',
+        },
+        contained: {
+          boxShadow: 'none',
+          '&:hover': { boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' },
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: { backgroundImage: 'none' }, // Remove overlay in dark mode if switched
+      },
+    },
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          '& .MuiOutlinedInput-root': {
+            borderRadius: 8,
+            backgroundColor: '#F8FAFC',
+          },
+        },
+      },
+    },
+  },
 });
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
 
+// --- TIPAGEM ---
 type AuthUser = {
   userId: number;
   name: string;
@@ -98,6 +166,7 @@ type Product = {
   name: string;
   description: string;
   price: number;
+  imageUrl?: string; // NOVO CAMPO DE IMAGEM
   createdAt: string;
   lastUpdated: string;
 };
@@ -114,8 +183,10 @@ type ProductFormValues = {
   name: string;
   description: string;
   price: number;
+  imageUrl?: string; // NOVO CAMPO NO FORM
 };
 
+// --- AUTH CONTEXT ---
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 const useAuth = () => {
@@ -126,6 +197,7 @@ const useAuth = () => {
   return context;
 };
 
+// --- FORMATADORES ---
 const currencyFormatter = new Intl.NumberFormat('pt-BR', {
   style: 'currency',
   currency: 'BRL',
@@ -140,17 +212,7 @@ const formatDate = (date?: string) => {
   });
 };
 
-const formatDateTime = (date?: string) => {
-  if (!date) return '—';
-  return new Date(date).toLocaleString('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-};
-
+// --- API HOOK ---
 const useApi = () => {
   const { token } = useAuth();
 
@@ -201,6 +263,7 @@ const useApi = () => {
   );
 };
 
+// --- COMPONENTE PRINCIPAL ---
 function App() {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
@@ -238,6 +301,7 @@ function App() {
   );
 }
 
+// --- TELA DE LOGIN / REGISTRO ---
 function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -277,77 +341,138 @@ function AuthPage() {
   };
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 10 }}>
-      <Paper elevation={6} sx={{ p: 4 }}>
-        <Stack spacing={2} textAlign="center" mb={2}>
-          <Typography variant="h4" fontWeight={600}>
-            RetailFlow CRM
-          </Typography>
-          <Typography color="text.secondary">
-            {isLogin
-              ? 'Acesse sua área para gerenciar clientes e produtos'
-              : 'Crie uma conta para começar o desafio final'}
-          </Typography>
-        </Stack>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        p: 2,
+      }}
+    >
+      <Container maxWidth="xs">
+        <Paper
+          elevation={24}
+          sx={{
+            p: 4,
+            borderRadius: 4,
+            backdropFilter: 'blur(10px)',
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          }}
+        >
+          <Stack spacing={2} textAlign="center" mb={4}>
+            <Box
+              sx={{
+                width: 60,
+                height: 60,
+                borderRadius: '50%',
+                bgcolor: 'primary.main',
+                color: 'white',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                mx: 'auto',
+                mb: 1,
+              }}
+            >
+              <StoreIcon fontSize="large" />
+            </Box>
+            <Typography variant="h4" fontWeight={700} color="primary">
+              RetailFlow
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {isLogin
+                ? 'Bem-vindo de volta! Acesse sua conta.'
+                : 'Crie sua conta e comece agora.'}
+            </Typography>
+          </Stack>
 
-        {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
-          </Alert>
-        )}
-
-        <Box component="form" onSubmit={handleSubmit}>
-          {!isLogin && (
-            <TextField
-              label="Nome completo"
-              fullWidth
-              margin="normal"
-              value={formData.name}
-              onChange={(event) => setFormData({ ...formData, name: event.target.value })}
-              required
-            />
+          {error && (
+            <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
+              {error}
+            </Alert>
           )}
 
-          <TextField
-            label="Email institucional"
-            fullWidth
-            margin="normal"
-            type="email"
-            value={formData.email}
-            onChange={(event) => setFormData({ ...formData, email: event.target.value })}
-            required
-          />
+          <Box component="form" onSubmit={handleSubmit}>
+            {!isLogin && (
+              <TextField
+                label="Nome completo"
+                fullWidth
+                margin="normal"
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <PersonIcon color="action" />
+                    </InputAdornment>
+                  ),
+                }}
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                required
+              />
+            )}
 
-          <TextField
-            label="Senha"
-            fullWidth
-            margin="normal"
-            type="password"
-            value={formData.password}
-            onChange={(event) => setFormData({ ...formData, password: event.target.value })}
-            required
-          />
+            <TextField
+              label="Email"
+              fullWidth
+              margin="normal"
+              type="email"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <EmailIcon color="action" />
+                  </InputAdornment>
+                ),
+              }}
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              required
+            />
 
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            size="large"
-            sx={{ mt: 3 }}
-            disabled={loading}
-          >
-            {loading ? <CircularProgress size={24} /> : isLogin ? 'Entrar' : 'Criar conta'}
-          </Button>
+            <TextField
+              label="Senha"
+              fullWidth
+              margin="normal"
+              type="password"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <LockIcon color="action" />
+                  </InputAdornment>
+                ),
+              }}
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              required
+            />
 
-          <Button fullWidth sx={{ mt: 1 }} onClick={() => setIsLogin((value) => !value)}>
-            {isLogin ? 'Não tem conta? Cadastre-se' : 'Já possui conta? Faça login'}
-          </Button>
-        </Box>
-      </Paper>
-    </Container>
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              size="large"
+              sx={{ mt: 4, mb: 2, height: 48, fontSize: '1rem' }}
+              disabled={loading}
+            >
+              {loading ? <CircularProgress size={24} color="inherit" /> : isLogin ? 'Entrar' : 'Cadastrar'}
+            </Button>
+
+            <Button
+              fullWidth
+              color="secondary"
+              onClick={() => setIsLogin(!isLogin)}
+            >
+              {isLogin ? 'Criar nova conta' : 'Já tenho conta'}
+            </Button>
+          </Box>
+        </Paper>
+      </Container>
+    </Box>
   );
 }
 
+// --- ROTAS DO PORTAL ---
 function PortalRoutes() {
   return (
     <BrowserRouter>
@@ -362,48 +487,98 @@ function PortalRoutes() {
   );
 }
 
+// --- SHELL DA APLICAÇÃO (NAVBAR) ---
 function AppShell() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const items = [
-    { label: 'Dashboard', path: '/' },
-    { label: 'Clientes', path: '/clientes' },
-    { label: 'Produtos', path: '/produtos' },
+    { label: 'Dashboard', path: '/', icon: <TrendingUpIcon /> },
+    { label: 'Clientes', path: '/clientes', icon: <PeopleIcon /> },
+    { label: 'Produtos', path: '/produtos', icon: <StoreIcon /> },
   ];
 
   return (
     <>
-      <AppBar position="sticky" elevation={0} sx={{ backgroundColor: '#0b273c' }}>
-        <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 600 }}>
-            RetailFlow | {user?.name}
-          </Typography>
-          <Stack direction="row" spacing={1} mr={3}>
-            {items.map((item) => (
-              <Button
-                key={item.path}
-                color="inherit"
-                variant={location.pathname === item.path ? 'outlined' : 'text'}
-                onClick={() => navigate(item.path)}
+      <AppBar 
+        position="sticky" 
+        elevation={0} 
+        sx={{ 
+          backgroundColor: '#FFFFFF',
+          borderBottom: '1px solid',
+          borderColor: 'divider',
+          color: 'text.primary'
+        }}
+      >
+        <Container maxWidth="xl">
+          <Toolbar disableGutters>
+            <StoreIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1, color: 'primary.main' }} />
+            <Typography
+              variant="h6"
+              noWrap
+              sx={{
+                mr: 2,
+                display: { xs: 'none', md: 'flex' },
+                fontWeight: 700,
+                color: 'primary.main',
+                textDecoration: 'none',
+                flexGrow: 1
+              }}
+            >
+              RetailFlow
+            </Typography>
+
+            <Stack direction="row" spacing={1} flexGrow={isMobile ? 1 : 0}>
+              {items.map((item) => {
+                const isActive = location.pathname === item.path;
+                return (
+                  <Button
+                    key={item.path}
+                    startIcon={!isMobile && item.icon}
+                    variant={isActive ? 'contained' : 'text'}
+                    color={isActive ? 'primary' : 'inherit'}
+                    onClick={() => navigate(item.path)}
+                    sx={{ 
+                      borderRadius: 50, 
+                      px: 3,
+                      backgroundColor: isActive ? 'primary.main' : 'transparent',
+                      color: isActive ? '#fff' : 'text.secondary',
+                      '&:hover': {
+                         backgroundColor: isActive ? 'primary.dark' : alpha(theme.palette.primary.main, 0.05)
+                      }
+                    }}
+                  >
+                    {item.label}
+                  </Button>
+                );
+              })}
+            </Stack>
+
+            <Box sx={{ flexGrow: 0, ml: 2 }}>
+              <Button 
+                color="error" 
+                variant="outlined" 
+                size="small"
+                startIcon={<LogoutIcon />} 
+                onClick={logout}
+                sx={{ borderRadius: 50 }}
               >
-                {item.label}
+                Sair
               </Button>
-            ))}
-          </Stack>
-          <Button color="inherit" startIcon={<LogoutIcon />} onClick={logout}>
-            Sair
-          </Button>
-        </Toolbar>
+            </Box>
+          </Toolbar>
+        </Container>
       </AppBar>
-      <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Container maxWidth="xl" sx={{ py: 4 }}>
         <Outlet />
       </Container>
     </>
   );
 }
 
+// --- DASHBOARD ---
 function Dashboard() {
   const api = useApi();
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -440,12 +615,12 @@ function Dashboard() {
   }, [api]);
 
   const latestCustomers = useMemo(
-    () => [...customers].sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt)).slice(0, 3),
+    () => [...customers].sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt)).slice(0, 4),
     [customers],
   );
 
   const latestProducts = useMemo(
-    () => [...products].sort((a, b) => Date.parse(b.lastUpdated) - Date.parse(a.lastUpdated)).slice(0, 3),
+    () => [...products].sort((a, b) => Date.parse(b.lastUpdated) - Date.parse(a.lastUpdated)).slice(0, 4),
     [products],
   );
 
@@ -458,7 +633,12 @@ function Dashboard() {
   }
 
   return (
-    <Stack spacing={3}>
+    <Stack spacing={4}>
+      <Box>
+        <Typography variant="h4" gutterBottom>Dashboard</Typography>
+        <Typography color="text.secondary">Visão geral do seu negócio</Typography>
+      </Box>
+
       {error && (
         <Alert severity="error" onClose={() => setError('')}>
           {error}
@@ -468,74 +648,110 @@ function Dashboard() {
       <Grid container spacing={3}>
         <Grid item xs={12} md={4}>
           <SummaryCard
-            title="Clientes ativos"
+            title="Clientes Ativos"
             value={customers.length}
-            subtitle="Cadastros completos com foto e contato"
-            icon={<PeopleIcon fontSize="large" />}
+            icon={<PeopleIcon />}
+            color="primary.main"
+            gradient="linear-gradient(135deg, #0F172A 0%, #334155 100%)"
           />
         </Grid>
         <Grid item xs={12} md={4}>
           <SummaryCard
-            title="Produtos ofertados"
+            title="Produtos"
             value={products.length}
-            subtitle="Catálogo pronto para CRUD completo"
-            icon={<StoreIcon fontSize="large" />}
+            icon={<ProductIcon />}
+            color="secondary.main"
+            gradient="linear-gradient(135deg, #4F46E5 0%, #818CF8 100%)"
           />
         </Grid>
         <Grid item xs={12} md={4}>
           <SummaryCard
-            title="Ticket médio"
-            value={
-              products.length
-                ? currencyFormatter.format(
-                    products.reduce((total, product) => total + product.price, 0) / products.length,
-                  )
-                : '—'
-            }
-            subtitle="Baseado nos valores cadastrados"
-            icon={<TrendingUpIcon fontSize="large" />}
+            title="Ticket Médio"
+            value={products.length ? currencyFormatter.format(products.reduce((acc, p) => acc + p.price, 0) / products.length) : 'R$ 0,00'}
+            icon={<TrendingUpIcon />}
+            color="#059669"
+            gradient="linear-gradient(135deg, #059669 0%, #34D399 100%)"
           />
         </Grid>
       </Grid>
 
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
-          <Paper sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Últimos clientes
-            </Typography>
-            {latestCustomers.map((customer) => (
-              <Stack key={customer.id} direction="row" alignItems="center" spacing={2} py={1}>
-                <Avatar src={customer.photoUrl}>{customer.firstName[0]}</Avatar>
-                <Box>
-                  <Typography fontWeight={600}>{customer.fullName}</Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {customer.email} • {customer.age} anos
-                  </Typography>
-                </Box>
-              </Stack>
-            ))}
-            {!latestCustomers.length && (
-              <Typography color="text.secondary">Cadastre um cliente para começar.</Typography>
-            )}
+          <Paper sx={{ p: 3, height: '100%' }}>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+              <Typography variant="h6">Últimos Clientes</Typography>
+              <Button size="small" href="/clientes">Ver todos</Button>
+            </Stack>
+            <Stack spacing={2}>
+              {latestCustomers.map((customer) => (
+                <Card key={customer.id} variant="outlined" sx={{ '&:hover': { transform: 'none', boxShadow: 'none', bgcolor: '#F8FAFC' } }}>
+                  <CardContent sx={{ py: 2, '&:last-child': { pb: 2 } }}>
+                    <Stack direction="row" spacing={2} alignItems="center">
+                      <Avatar src={customer.photoUrl} sx={{ width: 48, height: 48, bgcolor: 'secondary.light' }}>
+                        {customer.firstName[0]}
+                      </Avatar>
+                      <Box>
+                        <Typography fontWeight={600}>{customer.fullName}</Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {customer.email}
+                        </Typography>
+                      </Box>
+                      <Box flexGrow={1} />
+                      <Chip label="Novo" size="small" color="success" variant="outlined" />
+                    </Stack>
+                  </CardContent>
+                </Card>
+              ))}
+              {!latestCustomers.length && <Typography color="text.secondary">Nenhum cliente recente.</Typography>}
+            </Stack>
           </Paper>
         </Grid>
+
         <Grid item xs={12} md={6}>
-          <Paper sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Últimos produtos
-            </Typography>
-            {latestProducts.map((product) => (
-              <Stack key={product.id} spacing={0.5} py={1.2}>
-                <Typography fontWeight={600}>{product.name}</Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {currencyFormatter.format(product.price)} • Atualizado em {formatDate(product.lastUpdated)}
-                </Typography>
-              </Stack>
-            ))}
-            {!latestProducts.length && (
-              <Typography color="text.secondary">Cadastre um produto para visualizar aqui.</Typography>
-            )}
+          <Paper sx={{ p: 3, height: '100%' }}>
+             <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+              <Typography variant="h6">Últimos Produtos</Typography>
+              <Button size="small" href="/produtos">Ver todos</Button>
+            </Stack>
+            <Stack spacing={2}>
+              {latestProducts.map((product) => (
+                <Card key={product.id} variant="outlined" sx={{ '&:hover': { transform: 'none', boxShadow: 'none', bgcolor: '#F8FAFC' } }}>
+                  <CardContent sx={{ py: 2, '&:last-child': { pb: 2 } }}>
+                    <Stack direction="row" spacing={2} alignItems="center">
+                      <Box 
+                        sx={{ 
+                          width: 48, 
+                          height: 48, 
+                          borderRadius: 2, 
+                          bgcolor: 'background.default',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          overflow: 'hidden'
+                        }}
+                      >
+                         {product.imageUrl ? (
+                           <img src={product.imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                         ) : (
+                           <ProductIcon color="disabled" />
+                         )}
+                      </Box>
+                      <Box>
+                        <Typography fontWeight={600}>{product.name}</Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          Atualizado: {formatDate(product.lastUpdated)}
+                        </Typography>
+                      </Box>
+                      <Box flexGrow={1} />
+                      <Typography fontWeight={700} color="primary">
+                        {currencyFormatter.format(product.price)}
+                      </Typography>
+                    </Stack>
+                  </CardContent>
+                </Card>
+              ))}
+              {!latestProducts.length && <Typography color="text.secondary">Nenhum produto recente.</Typography>}
+            </Stack>
           </Paper>
         </Grid>
       </Grid>
@@ -543,6 +759,55 @@ function Dashboard() {
   );
 }
 
+type SummaryCardProps = {
+  title: string;
+  value: number | string;
+  icon: ReactNode;
+  color: string;
+  gradient: string;
+};
+
+function SummaryCard({ title, value, icon, gradient }: SummaryCardProps) {
+  return (
+    <Paper 
+      sx={{ 
+        p: 3, 
+        background: gradient,
+        color: 'white',
+        position: 'relative',
+        overflow: 'hidden'
+      }}
+    >
+      <Box sx={{ position: 'relative', zIndex: 1 }}>
+        <Stack direction="row" spacing={2} alignItems="center" mb={1}>
+           <Box sx={{ p: 1, bgcolor: 'rgba(255,255,255,0.2)', borderRadius: 2, display: 'flex' }}>
+             {icon}
+           </Box>
+           <Typography variant="body2" sx={{ opacity: 0.9, fontWeight: 500 }}>
+             {title}
+           </Typography>
+        </Stack>
+        <Typography variant="h4" fontWeight={700}>
+          {value}
+        </Typography>
+      </Box>
+      {/* Elemento decorativo */}
+      <Box 
+        sx={{ 
+          position: 'absolute', 
+          right: -20, 
+          bottom: -20, 
+          opacity: 0.1, 
+          transform: 'scale(4)' 
+        }}
+      >
+        {icon}
+      </Box>
+    </Paper>
+  );
+}
+
+// --- PÁGINA DE CLIENTES ---
 function CustomersPage() {
   const api = useApi();
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -619,68 +884,83 @@ function CustomersPage() {
   );
 
   return (
-    <Stack spacing={3}>
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="space-between">
+    <Stack spacing={4}>
+      <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} justifyContent="space-between" alignItems="center">
         <Box>
-          <Typography variant="h4" fontWeight={600}>
-            Clientes
-          </Typography>
-          <Typography color="text.secondary">
-            Cadastre e mantenha o CRM em dia, como descrito no desafio final.
-          </Typography>
+           <Typography variant="h4" fontWeight={700}>Clientes</Typography>
+           <Typography color="text.secondary">Gerencie sua base de contatos</Typography>
         </Box>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={() => setDialogOpen(true)}>
-          Novo cliente
+        <Button 
+          variant="contained" 
+          startIcon={<AddIcon />} 
+          onClick={() => setDialogOpen(true)}
+          sx={{ height: 48, px: 3 }}
+        >
+          Novo Cliente
         </Button>
       </Stack>
 
-      {error && (
-        <Alert severity="error" onClose={() => setError('')}>
-          {error}
-        </Alert>
-      )}
-
       <TextField
-        placeholder="Busque por nome ou email"
+        fullWidth
+        placeholder="Buscar cliente por nome ou email..."
         value={search}
         onChange={(event) => setSearch(event.target.value)}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <SearchIcon />
+            </InputAdornment>
+          ),
+        }}
       />
 
+      {error && <Alert severity="error" onClose={() => setError('')}>{error}</Alert>}
+
       {loading ? (
-        <Box textAlign="center" py={6}>
-          <CircularProgress />
-        </Box>
+        <Box textAlign="center" py={6}><CircularProgress /></Box>
       ) : (
         <Grid container spacing={3}>
           {filtered.map((customer) => (
-            <Grid item xs={12} sm={6} md={4} key={customer.id}>
-              <Card>
-                <CardHeader
-                  avatar={<Avatar src={customer.photoUrl}>{customer.firstName[0]}</Avatar>}
-                  title={customer.fullName}
-                  subheader={`${customer.email} • ${customer.age} anos`}
-                />
-                <CardContent>
-                  <Stack direction="row" spacing={1}>
-                    <Chip label="Cliente ativo" color="primary" size="small" />
-                  </Stack>
-                  <Stack direction="row" spacing={1} mt={2}>
-                    <IconButton color="primary" onClick={() => { setEditingCustomer(customer); setDialogOpen(true); }}>
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton color="error" onClick={() => handleDelete(customer.id)}>
-                      <DeleteIcon />
-                    </IconButton>
-                  </Stack>
+            <Grid item xs={12} sm={6} md={4} lg={3} key={customer.id}>
+              <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', p: 2 }}>
+                <Box sx={{ position: 'relative', mt: 2 }}>
+                  <Avatar 
+                    src={customer.photoUrl} 
+                    sx={{ 
+                      width: 96, 
+                      height: 96, 
+                      fontSize: 32,
+                      bgcolor: customer.photoUrl ? 'transparent' : 'secondary.main',
+                      border: '4px solid #fff',
+                      boxShadow: '0 8px 16px rgba(0,0,0,0.1)'
+                    }}
+                  >
+                    {customer.firstName[0]}
+                  </Avatar>
+                </Box>
+                <CardContent sx={{ flexGrow: 1, width: '100%' }}>
+                  <Typography variant="h6" fontWeight={600} gutterBottom>{customer.fullName}</Typography>
+                  <Chip label={`${customer.age} anos`} size="small" sx={{ mb: 2, bgcolor: 'background.default' }} />
+                  <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
+                     <EmailIcon fontSize="small" /> {customer.email}
+                  </Typography>
                 </CardContent>
+                <CardActions sx={{ width: '100%', justifyContent: 'center', borderTop: '1px solid', borderColor: 'divider', pt: 2 }}>
+                   <Button size="small" startIcon={<EditIcon />} onClick={() => { setEditingCustomer(customer); setDialogOpen(true); }}>
+                     Editar
+                   </Button>
+                   <Button size="small" color="error" startIcon={<DeleteIcon />} onClick={() => handleDelete(customer.id)}>
+                     Remover
+                   </Button>
+                </CardActions>
               </Card>
             </Grid>
           ))}
           {!filtered.length && (
             <Grid item xs={12}>
-              <Paper sx={{ p: 4, textAlign: 'center' }}>
-                <Typography>Cadastre o primeiro cliente para visualizar aqui.</Typography>
-              </Paper>
+               <Box textAlign="center" py={8} bgcolor="background.paper" borderRadius={4}>
+                 <Typography color="text.secondary">Nenhum cliente encontrado.</Typography>
+               </Box>
             </Grid>
           )}
         </Grid>
@@ -697,6 +977,7 @@ function CustomersPage() {
   );
 }
 
+// --- DIALOG DE CLIENTE ---
 type CustomerDialogProps = {
   open: boolean;
   initialData?: Customer;
@@ -720,42 +1001,38 @@ function CustomerFormDialog({ open, initialData, loading, onClose, onSubmit }: C
 
   useEffect(() => {
     if (open) {
-      reset(
-        initialData
-          ? {
-              firstName: initialData.firstName,
-              lastName: initialData.lastName,
-              email: initialData.email,
-              age: initialData.age,
-              photoUrl: initialData.photoUrl ?? '',
-            }
-          : defaultValues,
-      );
+      reset(initialData ? {
+        firstName: initialData.firstName,
+        lastName: initialData.lastName,
+        email: initialData.email,
+        age: initialData.age,
+        photoUrl: initialData.photoUrl ?? '',
+      } : defaultValues);
     }
   }, [open, initialData, reset]);
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{initialData ? 'Editar cliente' : 'Novo cliente'}</DialogTitle>
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
+      <DialogTitle sx={{ borderBottom: '1px solid', borderColor: 'divider' }}>
+        {initialData ? 'Editar Cliente' : 'Novo Cliente'}
+      </DialogTitle>
       <Box component="form" onSubmit={handleSubmit(onSubmit)}>
-        <DialogContent>
+        <DialogContent sx={{ pt: 3 }}>
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={6}>
               <TextField
                 label="Nome"
                 fullWidth
-                margin="normal"
-                {...register('firstName', { required: 'Informe o nome' })}
+                {...register('firstName', { required: 'Obrigatório' })}
                 error={!!formState.errors.firstName}
                 helperText={formState.errors.firstName?.message}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={6}>
               <TextField
                 label="Sobrenome"
                 fullWidth
-                margin="normal"
-                {...register('lastName', { required: 'Informe o sobrenome' })}
+                {...register('lastName', { required: 'Obrigatório' })}
                 error={!!formState.errors.lastName}
                 helperText={formState.errors.lastName?.message}
               />
@@ -763,10 +1040,9 @@ function CustomerFormDialog({ open, initialData, loading, onClose, onSubmit }: C
           </Grid>
           <TextField
             label="Email"
-            type="email"
             fullWidth
             margin="normal"
-            {...register('email', { required: 'Informe o email' })}
+            {...register('email', { required: 'Obrigatório' })}
             error={!!formState.errors.email}
             helperText={formState.errors.email?.message}
           />
@@ -775,26 +1051,22 @@ function CustomerFormDialog({ open, initialData, loading, onClose, onSubmit }: C
             type="number"
             fullWidth
             margin="normal"
-            inputProps={{ min: 0 }}
-            {...register('age', {
-              required: 'Informe a idade',
-              valueAsNumber: true,
-              min: { value: 0, message: 'Idade deve ser positiva' },
-            })}
-            error={!!formState.errors.age}
-            helperText={formState.errors.age?.message}
+            {...register('age', { valueAsNumber: true, min: 0 })}
           />
           <TextField
-            label="URL da foto"
+            label="URL da Foto (Opcional)"
             fullWidth
             margin="normal"
             {...register('photoUrl')}
+            InputProps={{
+              startAdornment: <InputAdornment position="start"><ImageIcon /></InputAdornment>
+            }}
           />
         </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose}>Cancelar</Button>
+        <DialogActions sx={{ p: 2, borderTop: '1px solid', borderColor: 'divider' }}>
+          <Button onClick={onClose} color="inherit">Cancelar</Button>
           <Button type="submit" variant="contained" disabled={loading}>
-            {loading ? <CircularProgress size={24} /> : 'Salvar'}
+            {loading ? 'Salvando...' : 'Salvar Cliente'}
           </Button>
         </DialogActions>
       </Box>
@@ -802,6 +1074,7 @@ function CustomerFormDialog({ open, initialData, loading, onClose, onSubmit }: C
   );
 }
 
+// --- PÁGINA DE PRODUTOS ---
 function ProductsPage() {
   const api = useApi();
   const [products, setProducts] = useState<Product[]>([]);
@@ -862,78 +1135,88 @@ function ProductsPage() {
   };
 
   return (
-    <Stack spacing={3}>
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="space-between">
+    <Stack spacing={4}>
+      <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} justifyContent="space-between" alignItems="center">
         <Box>
-          <Typography variant="h4" fontWeight={600}>
-            Produtos
-          </Typography>
-          <Typography color="text.secondary">
-            Controle todo o catálogo com preços e datas de atualização.
-          </Typography>
+           <Typography variant="h4" fontWeight={700}>Catálogo de Produtos</Typography>
+           <Typography color="text.secondary">Gerencie estoque e preços</Typography>
         </Box>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={() => setDialogOpen(true)}>
-          Novo produto
+        <Button 
+          variant="contained" 
+          startIcon={<AddIcon />} 
+          onClick={() => setDialogOpen(true)}
+          sx={{ height: 48, px: 3 }}
+        >
+          Novo Produto
         </Button>
       </Stack>
 
-      {error && (
-        <Alert severity="error" onClose={() => setError('')}>
-          {error}
-        </Alert>
-      )}
+      {error && <Alert severity="error" onClose={() => setError('')}>{error}</Alert>}
 
       {loading ? (
-        <Box textAlign="center" py={6}>
-          <CircularProgress />
-        </Box>
+        <Box textAlign="center" py={6}><CircularProgress /></Box>
       ) : (
-        <Paper>
-          <Box display="grid" gridTemplateColumns="repeat(5, 1fr)" px={3} py={2} fontWeight={600}>
-            <Typography>Produto</Typography>
-            <Typography>Descrição</Typography>
-            <Typography>Preço</Typography>
-            <Typography>Atualizado em</Typography>
-            <Typography textAlign="right">Ações</Typography>
-          </Box>
-          <Divider />
+        <Grid container spacing={3}>
           {products.map((product) => (
-            <Box
-              key={product.id}
-              display="grid"
-              gridTemplateColumns="repeat(5, 1fr)"
-              px={3}
-              py={2}
-              alignItems="center"
-            >
-              <Typography fontWeight={600}>{product.name}</Typography>
-              <Typography color="text.secondary" noWrap>
-                {product.description}
-              </Typography>
-              <Typography>{currencyFormatter.format(product.price)}</Typography>
-              <Typography>{formatDateTime(product.lastUpdated)}</Typography>
-              <Stack direction="row" spacing={1} justifyContent="flex-end">
-                <IconButton
-                  color="primary"
-                  onClick={() => {
-                    setEditingProduct(product);
-                    setDialogOpen(true);
-                  }}
-                >
-                  <EditIcon />
-                </IconButton>
-                <IconButton color="error" onClick={() => handleDelete(product.id)}>
-                  <DeleteIcon />
-                </IconButton>
-              </Stack>
-            </Box>
+            <Grid item xs={12} sm={6} md={4} lg={3} key={product.id}>
+              <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                <Box sx={{ position: 'relative', pt: '56.25%', bgcolor: 'grey.100' }}>
+                   {product.imageUrl ? (
+                     <CardMedia
+                       component="img"
+                       image={product.imageUrl}
+                       alt={product.name}
+                       sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                     />
+                   ) : (
+                     <Box sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'text.disabled' }}>
+                        <ProductIcon sx={{ fontSize: 60, opacity: 0.2 }} />
+                     </Box>
+                   )}
+                   <Chip 
+                     label={currencyFormatter.format(product.price)} 
+                     color="secondary" 
+                     size="small" 
+                     sx={{ position: 'absolute', top: 12, right: 12, fontWeight: 700 }} 
+                   />
+                </Box>
+                
+                <CardContent sx={{ flexGrow: 1 }}>
+                  <Typography variant="h6" fontWeight={600} gutterBottom noWrap title={product.name}>
+                    {product.name}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{
+                    display: '-webkit-box',
+                    WebkitLineClamp: 3,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden'
+                  }}>
+                    {product.description}
+                  </Typography>
+                </CardContent>
+                
+                <CardActions sx={{ px: 2, pb: 2, pt: 0 }}>
+                   <Typography variant="caption" color="text.secondary" sx={{ flexGrow: 1 }}>
+                     {formatDate(product.lastUpdated)}
+                   </Typography>
+                   <IconButton size="small" color="primary" onClick={() => { setEditingProduct(product); setDialogOpen(true); }}>
+                     <EditIcon />
+                   </IconButton>
+                   <IconButton size="small" color="error" onClick={() => handleDelete(product.id)}>
+                     <DeleteIcon />
+                   </IconButton>
+                </CardActions>
+              </Card>
+            </Grid>
           ))}
           {!products.length && (
-            <Box textAlign="center" py={4} color="text.secondary">
-              Nenhum produto cadastrado.
-            </Box>
+            <Grid item xs={12}>
+               <Box textAlign="center" py={8} bgcolor="background.paper" borderRadius={4}>
+                 <Typography color="text.secondary">Nenhum produto cadastrado.</Typography>
+               </Box>
+            </Grid>
           )}
-        </Paper>
+        </Grid>
       )}
 
       <ProductFormDialog
@@ -947,6 +1230,7 @@ function ProductsPage() {
   );
 }
 
+// --- DIALOG DE PRODUTO ---
 type ProductDialogProps = {
   open: boolean;
   initialData?: Product;
@@ -960,6 +1244,7 @@ function ProductFormDialog({ open, initialData, loading, onClose, onSubmit }: Pr
     name: '',
     description: '',
     price: 0,
+    imageUrl: '', // Campo novo
   };
 
   const { register, handleSubmit, formState, reset } = useForm<ProductFormValues>({
@@ -968,105 +1253,74 @@ function ProductFormDialog({ open, initialData, loading, onClose, onSubmit }: Pr
 
   useEffect(() => {
     if (open) {
-      reset(
-        initialData
-          ? {
-              name: initialData.name,
-              description: initialData.description,
-              price: initialData.price,
-            }
-          : defaultValues,
-      );
+      reset(initialData ? {
+        name: initialData.name,
+        description: initialData.description,
+        price: initialData.price,
+        imageUrl: initialData.imageUrl ?? '',
+      } : defaultValues);
     }
   }, [open, initialData, reset]);
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{initialData ? 'Editar produto' : 'Novo produto'}</DialogTitle>
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
+      <DialogTitle sx={{ borderBottom: '1px solid', borderColor: 'divider' }}>
+        {initialData ? 'Editar Produto' : 'Novo Produto'}
+      </DialogTitle>
       <Box component="form" onSubmit={handleSubmit(onSubmit)}>
-        <DialogContent>
+        <DialogContent sx={{ pt: 3 }}>
           <TextField
-            label="Nome"
+            label="Nome do Produto"
             fullWidth
-            margin="normal"
-            {...register('name', { required: 'Informe o nome do produto' })}
+            {...register('name', { required: 'Obrigatório' })}
             error={!!formState.errors.name}
             helperText={formState.errors.name?.message}
           />
+          <TextField
+            label="URL da Imagem"
+            fullWidth
+            margin="normal"
+            placeholder="https://..."
+            {...register('imageUrl')}
+            InputProps={{
+              startAdornment: <InputAdornment position="start"><ImageIcon /></InputAdornment>
+            }}
+          />
+          <Grid container spacing={2} sx={{ mt: 1 }}>
+            <Grid item xs={6}>
+              <TextField
+                label="Preço (R$)"
+                type="number"
+                fullWidth
+                {...register('price', {
+                  required: 'Obrigatório',
+                  min: { value: 0.01, message: 'Valor mínimo R$ 0,01' },
+                  valueAsNumber: true,
+                })}
+                error={!!formState.errors.price}
+                helperText={formState.errors.price?.message}
+              />
+            </Grid>
+          </Grid>
           <TextField
             label="Descrição"
             fullWidth
             margin="normal"
             multiline
-            minRows={3}
-            {...register('description', { required: 'Informe a descrição' })}
+            rows={3}
+            {...register('description', { required: 'Obrigatório' })}
             error={!!formState.errors.description}
             helperText={formState.errors.description?.message}
           />
-          <TextField
-            label="Preço"
-            type="number"
-            fullWidth
-            margin="normal"
-            inputProps={{ min: 0, step: 0.01 }}
-            {...register('price', {
-              required: 'Informe o preço',
-              valueAsNumber: true,
-              min: { value: 0.01, message: 'Preço deve ser maior que zero' },
-            })}
-            error={!!formState.errors.price}
-            helperText={formState.errors.price?.message}
-          />
         </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose}>Cancelar</Button>
+        <DialogActions sx={{ p: 2, borderTop: '1px solid', borderColor: 'divider' }}>
+          <Button onClick={onClose} color="inherit">Cancelar</Button>
           <Button type="submit" variant="contained" disabled={loading}>
-            {loading ? <CircularProgress size={24} /> : 'Salvar'}
+            {loading ? 'Salvando...' : 'Salvar Produto'}
           </Button>
         </DialogActions>
       </Box>
     </Dialog>
-  );
-}
-
-type SummaryCardProps = {
-  title: string;
-  value: number | string;
-  subtitle: string;
-  icon: ReactNode;
-};
-
-function SummaryCard({ title, value, subtitle, icon }: SummaryCardProps) {
-  return (
-    <Paper elevation={0} sx={{ p: 3, border: '1px solid #e5e8f0' }}>
-      <Stack direction="row" spacing={2} alignItems="center">
-        <Box
-          sx={{
-            width: 56,
-            height: 56,
-            borderRadius: '50%',
-            backgroundColor: 'primary.main',
-            color: '#fff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          {icon}
-        </Box>
-        <Box>
-          <Typography color="text.secondary" variant="body2">
-            {title}
-          </Typography>
-          <Typography variant="h4" fontWeight={700}>
-            {value}
-          </Typography>
-          <Typography color="text.secondary" variant="body2">
-            {subtitle}
-          </Typography>
-        </Box>
-      </Stack>
-    </Paper>
   );
 }
 

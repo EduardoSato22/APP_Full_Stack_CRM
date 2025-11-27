@@ -12,6 +12,7 @@ public class ProductResponse {
     private String name;
     private String description;
     private BigDecimal price;
+    private String imageUrl; 
     private LocalDateTime createdAt;
     private LocalDateTime lastUpdated;
     private Long userId;
@@ -22,6 +23,9 @@ public class ProductResponse {
         response.setName(product.getName());
         response.setDescription(product.getDescription());
         response.setPrice(product.getPrice());
+        
+        response.setImageUrl(product.getImageUrl());
+
         response.setCreatedAt(product.getCreatedAt());
         response.setLastUpdated(product.getLastUpdated());
         if (product.getUser() != null) {
@@ -30,4 +34,3 @@ public class ProductResponse {
         return response;
     }
 }
-
