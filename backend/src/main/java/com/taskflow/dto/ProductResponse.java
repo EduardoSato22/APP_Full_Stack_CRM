@@ -12,25 +12,39 @@ public class ProductResponse {
     private String name;
     private String description;
     private BigDecimal price;
-    private String imageUrl; 
+    private BigDecimal costPrice;
+    private BigDecimal margin;
+    private String sku;
+    private Integer stock;
+    private Product.Unit unit;
+    private Product.Status status;
+    private Long categoryId;
+    private String categoryName;
+    private String imageUrl;
+    private Long userId;
     private LocalDateTime createdAt;
     private LocalDateTime lastUpdated;
-    private Long userId;
 
-    public static ProductResponse fromEntity(Product product) {
-        ProductResponse response = new ProductResponse();
-        response.setId(product.getId());
-        response.setName(product.getName());
-        response.setDescription(product.getDescription());
-        response.setPrice(product.getPrice());
-        
-        response.setImageUrl(product.getImageUrl());
-
-        response.setCreatedAt(product.getCreatedAt());
-        response.setLastUpdated(product.getLastUpdated());
-        if (product.getUser() != null) {
-            response.setUserId(product.getUser().getId());
+    public static ProductResponse fromEntity(Product p) {
+        ProductResponse r = new ProductResponse();
+        r.setId(p.getId());
+        r.setName(p.getName());
+        r.setDescription(p.getDescription());
+        r.setPrice(p.getPrice());
+        r.setCostPrice(p.getCostPrice());
+        r.setMargin(p.getMargin());
+        r.setSku(p.getSku());
+        r.setStock(p.getStock());
+        r.setUnit(p.getUnit());
+        r.setStatus(p.getStatus());
+        r.setImageUrl(p.getImageUrl());
+        r.setCreatedAt(p.getCreatedAt());
+        r.setLastUpdated(p.getLastUpdated());
+        if (p.getUser() != null) r.setUserId(p.getUser().getId());
+        if (p.getCategory() != null) {
+            r.setCategoryId(p.getCategory().getId());
+            r.setCategoryName(p.getCategory().getName());
         }
-        return response;
+        return r;
     }
 }

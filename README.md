@@ -76,7 +76,7 @@ docker compose up --build
 1. **Backend (perfil local com H2):**
    ```bash
    cd backend
-   mvn spring-boot:run -Dspring-boot.run.profiles=local
+   mvn spring-boot:run "-Dspring-boot.run.profiles=local"
    ```
    Porta padrão: `http://localhost:8080`
 

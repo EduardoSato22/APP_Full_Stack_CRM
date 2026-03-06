@@ -1,5 +1,6 @@
 package com.taskflow.dto;
 
+import com.taskflow.model.Product;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -20,6 +21,11 @@ public class ProductRequest {
     @DecimalMin(value = "0.0", inclusive = false, message = "Preço deve ser maior que zero")
     private BigDecimal price;
 
+    private BigDecimal costPrice;
+    private String sku;
+    private Integer stock;
+    private Product.Unit unit;
+    private Product.Status status;
+    private Long categoryId;
     private String imageUrl;
 }
-
