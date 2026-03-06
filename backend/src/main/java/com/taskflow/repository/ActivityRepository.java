@@ -13,17 +13,16 @@ import java.util.List;
 
 @Repository
 public interface ActivityRepository extends JpaRepository<Activity, Long> {
-
     @Query("""
         SELECT a FROM Activity a WHERE
-        (:status IS NULL OR a.status = :status)
-        AND (:type IS NULL OR a.type = :type)
+        (CAST(:status AS string) IS NULL OR CAST(a.status AS string) = :status)
+        AND (CAST(:type AS string) IS NULL OR CAST(a.type AS string) = :type)
         AND (:assignedToId IS NULL OR a.assignedTo.id = :assignedToId)
         AND (:customerId IS NULL OR a.customer.id = :customerId)
         """)
     Page<Activity> findFiltered(
-            @Param("status") Activity.Status status,
-            @Param("type") Activity.Type type,
+            @Param("status") String status,
+            @Param("type") String type,
             @Param("assignedToId") Long assignedToId,
             @Param("customerId") Long customerId,
             Pageable pageable);

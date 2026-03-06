@@ -14,16 +14,15 @@ import java.util.List;
 
 @Repository
 public interface DealRepository extends JpaRepository<Deal, Long> {
-
     @Query("""
         SELECT d FROM Deal d WHERE d.deletedAt IS NULL
-        AND (:stage IS NULL OR d.stage = :stage)
+        AND (CAST(:stage AS string) IS NULL OR CAST(d.stage AS string) = :stage)
         AND (:assignedToId IS NULL OR d.assignedTo.id = :assignedToId)
         AND (d.createdBy.id = :userId OR d.assignedTo.id = :userId)
         """)
     Page<Deal> findFiltered(
             @Param("userId") Long userId,
-            @Param("stage") Deal.Stage stage,
+            @Param("stage") String stage,
             @Param("assignedToId") Long assignedToId,
             Pageable pageable);
 
