@@ -33,9 +33,9 @@ public class CustomerService {
         User user = getCurrentUser();
         Page<Customer> page;
         if (user.getRole() == Role.ADMIN || user.getRole() == Role.MANAGER) {
-            page = customerRepository.findAllFiltered(search, status != null ? status.name() : null, pageable);
+            page = customerRepository.findAllFiltered(search, status, pageable);
         } else {
-            page = customerRepository.findByUserFiltered(user.getId(), search, status != null ? status.name() : null, pageable);
+            page = customerRepository.findByUserFiltered(user.getId(), search, status, pageable);
         }
         return page.map(CustomerResponse::fromEntity);
     }

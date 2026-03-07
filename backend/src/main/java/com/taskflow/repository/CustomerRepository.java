@@ -9,30 +9,30 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
-    @Query(value = """
-        SELECT * FROM customers c WHERE c.deleted_at IS NULL
-        AND (c.user_id = :userId OR c.assigned_to = :userId)
-        AND (:search IS NULL OR LOWER(c.first_name) LIKE LOWER(CONCAT('%', CAST(:search AS text), '%'))
-             OR LOWER(c.last_name) LIKE LOWER(CONCAT('%', CAST(:search AS text), '%'))
-             OR LOWER(c.email) LIKE LOWER(CONCAT('%', CAST(:search AS text), '%'))
-             OR LOWER(c.company) LIKE LOWER(CONCAT('%', CAST(:search AS text), '%')))
-        AND (CAST(:status AS text) IS NULL OR c.status = :status)
-        """, nativeQuery = true)
+    @Query("""
+        SELECT c FROM Customer c WHERE c.deletedAt IS NULL
+        AND (c.user.id = :userId OR c.assignedTo.id = :userId)
+        AND (:search IS NULL OR LOWER(c.firstName) LIKE LOWER(CONCAT('%', :search, '%'))
+             OR LOWER(c.lastName) LIKE LOWER(CONCAT('%', :search, '%'))
+             OR LOWER(c.email) LIKE LOWER(CONCAT('%', :search, '%'))
+             OR LOWER(c.company) LIKE LOWER(CONCAT('%', :search, '%')))
+        AND (:status IS NULL OR c.status = :status)
+        """)
     Page<Customer> findByUserFiltered(
             @Param("userId") Long userId,
             @Param("search") String search,
-            @Param("status") String status,
+            @Param("status") Customer.Status status,
             Pageable pageable);
 
-    @Query(value = """
-        SELECT * FROM customers c WHERE c.deleted_at IS NULL
-        AND (:search IS NULL OR LOWER(c.first_name) LIKE LOWER(CONCAT('%', CAST(:search AS text), '%'))
-             OR LOWER(c.email) LIKE LOWER(CONCAT('%', CAST(:search AS text), '%')))
-        AND (CAST(:status AS text) IS NULL OR c.status = :status)
-        """, nativeQuery = true)
+    @Query("""
+        SELECT c FROM Customer c WHERE c.deletedAt IS NULL
+        AND (:search IS NULL OR LOWER(c.firstName) LIKE LOWER(CONCAT('%', :search, '%'))
+             OR LOWER(c.email) LIKE LOWER(CONCAT('%', :search, '%')))
+        AND (:status IS NULL OR c.status = :status)
+        """)
     Page<Customer> findAllFiltered(
             @Param("search") String search,
-            @Param("status") String status,
+            @Param("status") Customer.Status status,
             Pageable pageable);
 
     boolean existsByEmailAndUserIdAndDeletedAtIsNull(String email, Long userId);
