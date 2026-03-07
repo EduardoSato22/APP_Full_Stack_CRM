@@ -17,17 +17,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
              OR LOWER(c.email) LIKE LOWER(CONCAT('%', CAST(:search AS text), '%'))
              OR LOWER(c.company) LIKE LOWER(CONCAT('%', CAST(:search AS text), '%')))
         AND (CAST(:status AS text) IS NULL OR c.status = :status)
-        """,
-        countQuery = """
-        SELECT COUNT(*) FROM customers c WHERE c.deleted_at IS NULL
-        AND (c.user_id = :userId OR c.assigned_to = :userId)
-        AND (:search IS NULL OR LOWER(c.first_name) LIKE LOWER(CONCAT('%', CAST(:search AS text), '%'))
-             OR LOWER(c.last_name) LIKE LOWER(CONCAT('%', CAST(:search AS text), '%'))
-             OR LOWER(c.email) LIKE LOWER(CONCAT('%', CAST(:search AS text), '%'))
-             OR LOWER(c.company) LIKE LOWER(CONCAT('%', CAST(:search AS text), '%')))
-        AND (CAST(:status AS text) IS NULL OR c.status = :status)
-        """,
-        nativeQuery = true)
+        """, nativeQuery = true)
     Page<Customer> findByUserFiltered(
             @Param("userId") Long userId,
             @Param("search") String search,
@@ -39,14 +29,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
         AND (:search IS NULL OR LOWER(c.first_name) LIKE LOWER(CONCAT('%', CAST(:search AS text), '%'))
              OR LOWER(c.email) LIKE LOWER(CONCAT('%', CAST(:search AS text), '%')))
         AND (CAST(:status AS text) IS NULL OR c.status = :status)
-        """,
-        countQuery = """
-        SELECT COUNT(*) FROM customers c WHERE c.deleted_at IS NULL
-        AND (:search IS NULL OR LOWER(c.first_name) LIKE LOWER(CONCAT('%', CAST(:search AS text), '%'))
-             OR LOWER(c.email) LIKE LOWER(CONCAT('%', CAST(:search AS text), '%')))
-        AND (CAST(:status AS text) IS NULL OR c.status = :status)
-        """,
-        nativeQuery = true)
+        """, nativeQuery = true)
     Page<Customer> findAllFiltered(
             @Param("search") String search,
             @Param("status") String status,

@@ -15,14 +15,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
         AND (:search IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', CAST(:search AS text), '%')))
         AND (CAST(:status AS text) IS NULL OR p.status = :status)
         AND (:categoryId IS NULL OR p.category_id = :categoryId)
-        """,
-        countQuery = """
-        SELECT COUNT(*) FROM products p WHERE p.user_id = :userId AND p.deleted_at IS NULL
-        AND (:search IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', CAST(:search AS text), '%')))
-        AND (CAST(:status AS text) IS NULL OR p.status = :status)
-        AND (:categoryId IS NULL OR p.category_id = :categoryId)
-        """,
-        nativeQuery = true)
+        """, nativeQuery = true)
     Page<Product> findByUserFiltered(
             @Param("userId") Long userId,
             @Param("search") String search,

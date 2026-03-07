@@ -30,7 +30,8 @@ public class ProductService {
     }
 
     public Page<ProductResponse> list(String search, Product.Status status, Long categoryId, Pageable pageable) {
-        return productRepository.findByUserFiltered(getCurrentUser().getId(), search, status, categoryId, pageable)
+        return productRepository.findByUserFiltered(getCurrentUser().getId(), search,
+        status != null ? status.name() : null, categoryId, pageable)
                 .map(ProductResponse::fromEntity);
     }
 

@@ -34,7 +34,10 @@ public class ActivityService {
     }
 
     public Page<ActivityResponse> list(Activity.Status status, Activity.Type type, Long assignedToId, Long customerId, Pageable pageable) {
-        return activityRepository.findFiltered(status, type, assignedToId, customerId, pageable)
+        return activityRepository.findFiltered(
+        status != null ? status.name() : null,
+        type != null ? type.name() : null,
+        assignedToId, customerId, pageable)
                 .map(ActivityResponse::fromEntity);
     }
 

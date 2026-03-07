@@ -38,7 +38,8 @@ public class DealService {
     }
 
     public Page<DealResponse> list(Deal.Stage stage, Long assignedToId, Pageable pageable) {
-        return dealRepository.findFiltered(getCurrentUser().getId(), stage, assignedToId, pageable)
+        return dealRepository.findFiltered(getCurrentUser().getId(),
+        stage != null ? stage.name() : null, assignedToId, pageable)
                 .map(DealResponse::fromEntity);
     }
 
