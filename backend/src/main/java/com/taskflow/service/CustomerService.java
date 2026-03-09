@@ -30,15 +30,16 @@ public class CustomerService {
     }
 
     public Page<CustomerResponse> list(String search, Customer.Status status, Pageable pageable) {
-        User user = getCurrentUser();
-        String statusStr = status != null ? status.name() : null;
-        Page<Customer> page;
-        if (user.getRole() == Role.ADMIN || user.getRole() == Role.MANAGER) {
-            page = customerRepository.findAllFiltered(search, statusStr, pageable);
-        } else {
-            page = customerRepository.findByUserFiltered(user.getId(), search, statusStr, pageable);
-        }
-        return page.map(CustomerResponse::fromEntity);
+    User user = getCurrentUser();
+    String statusStr = status != null ? status.name() : null;
+    Pageable unsorted = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.unsorted());
+    Page<Customer> page;
+    if (user.getRole() == Role.ADMIN || user.getRole() == Role.MANAGER) {
+        page = customerRepository.findAllFiltered(search, statusStr, unsorted);
+    } else {
+        page = customerRepository.findByUserFiltered(user.getId(), search, statusStr, unsorted);
+    }
+    return page.map(CustomerResponse::fromEntity);
     }
 
     @Transactional
