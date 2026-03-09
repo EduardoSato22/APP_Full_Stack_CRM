@@ -31,11 +31,12 @@ public class CustomerService {
 
     public Page<CustomerResponse> list(String search, Customer.Status status, Pageable pageable) {
         User user = getCurrentUser();
+        String statusStr = status != null ? status.name() : null;
         Page<Customer> page;
         if (user.getRole() == Role.ADMIN || user.getRole() == Role.MANAGER) {
-            page = customerRepository.findAllFiltered(search, status, pageable);
+            page = customerRepository.findAllFiltered(search, statusStr, pageable);
         } else {
-            page = customerRepository.findByUserFiltered(user.getId(), search, status, pageable);
+            page = customerRepository.findByUserFiltered(user.getId(), search, statusStr, pageable);
         }
         return page.map(CustomerResponse::fromEntity);
     }
