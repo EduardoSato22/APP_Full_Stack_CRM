@@ -56,7 +56,7 @@ public class Customer {
     @Enumerated(EnumType.STRING)
     private Source source = Source.ORGANIC;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "customer_tags", joinColumns = @JoinColumn(name = "customer_id"))
     @Column(name = "tag")
     private List<String> tags = new ArrayList<>();
