@@ -7,6 +7,7 @@ import com.retailflow.repository.ActivityRepository;
 import com.retailflow.repository.CustomerRepository;
 import com.retailflow.repository.DealRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +31,11 @@ public class DashboardService {
         return (User) userService.loadUserByUsername(email);
     }
 
+    public String currentUserName() {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
+    }
+
+    @Cacheable(value = "dashboard-summary", key = "#root.target.currentUserName()")
     public DashboardSummary getSummary() {
         User user = getCurrentUser();
         LocalDateTime monthStart = LocalDate.now().withDayOfMonth(1).atStartOfDay();

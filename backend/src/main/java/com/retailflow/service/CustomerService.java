@@ -10,6 +10,7 @@ import com.retailflow.repository.CustomerRepository;
 import com.retailflow.repository.UserRepository;
 import com.retailflow.specification.CustomerSpec;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -48,6 +49,7 @@ public class CustomerService {
     }
 
     @Transactional
+    @CacheEvict(value = "dashboard-summary", allEntries = true)
     public CustomerResponse create(CustomerRequest request) {
         User user = getCurrentUser();
         if (customerRepository.existsByEmailAndUserIdAndDeletedAtIsNull(request.getEmail(), user.getId())) {
@@ -65,6 +67,7 @@ public class CustomerService {
     }
 
     @Transactional
+    @CacheEvict(value = "dashboard-summary", allEntries = true)
     public CustomerResponse update(Long id, CustomerRequest request) {
         Customer customer = findOwned(id);
         User user = getCurrentUser();
@@ -78,6 +81,7 @@ public class CustomerService {
     }
 
     @Transactional
+    @CacheEvict(value = "dashboard-summary", allEntries = true)
     public void delete(Long id) {
         Customer customer = findOwned(id);
         customer.setDeletedAt(LocalDateTime.now());

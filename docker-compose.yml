@@ -15,6 +15,14 @@ services:
     networks:
       - taskflow-network
 
+  redis:
+    image: redis:7-alpine
+    container_name: retailflow-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    networks:
+      - taskflow-network
+
   backend:
     build:
       context: ./backend
@@ -26,10 +34,12 @@ services:
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-taskflow}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
     ports:
       - "${BACKEND_PORT:-8080}:8080"
     depends_on:
       - postgres
+      - redis
     networks:
       - taskflow-network
 

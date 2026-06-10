@@ -12,6 +12,7 @@ import com.retailflow.repository.ProductRepository;
 import com.retailflow.repository.UserRepository;
 import com.retailflow.specification.DealSpec;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -56,6 +57,7 @@ public class DealService {
     }
 
     @Transactional
+    @CacheEvict(value = "dashboard-summary", allEntries = true)
     public DealResponse create(DealRequest request) {
         User user = getCurrentUser();
         Deal deal = new Deal();
@@ -70,6 +72,7 @@ public class DealService {
     }
 
     @Transactional
+    @CacheEvict(value = "dashboard-summary", allEntries = true)
     public DealResponse update(Long id, DealRequest request) {
         Deal deal = findOwned(id);
         dealMapper.updateEntity(request, deal);
@@ -78,6 +81,7 @@ public class DealService {
     }
 
     @Transactional
+    @CacheEvict(value = "dashboard-summary", allEntries = true)
     public DealResponse changeStage(Long id, Deal.Stage newStage, String lostReason) {
         Deal deal = findOwned(id);
         if (newStage == Deal.Stage.LOST && (lostReason == null || lostReason.isBlank())) {
@@ -99,6 +103,7 @@ public class DealService {
     }
 
     @Transactional
+    @CacheEvict(value = "dashboard-summary", allEntries = true)
     public void delete(Long id) {
         Deal deal = findOwned(id);
         deal.setDeletedAt(LocalDateTime.now());

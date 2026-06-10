@@ -11,6 +11,7 @@ import com.retailflow.repository.DealRepository;
 import com.retailflow.repository.UserRepository;
 import com.retailflow.specification.ActivitySpec;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -57,6 +58,7 @@ public class ActivityService {
     }
 
     @Transactional
+    @CacheEvict(value = "dashboard-summary", allEntries = true)
     public ActivityResponse create(ActivityRequest request) {
         User user = getCurrentUser();
         Activity activity = new Activity();
@@ -67,6 +69,7 @@ public class ActivityService {
     }
 
     @Transactional
+    @CacheEvict(value = "dashboard-summary", allEntries = true)
     public ActivityResponse update(Long id, ActivityRequest request) {
         Activity activity = activityRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Atividade não encontrada"));
@@ -76,6 +79,7 @@ public class ActivityService {
     }
 
     @Transactional
+    @CacheEvict(value = "dashboard-summary", allEntries = true)
     public ActivityResponse complete(Long id) {
         Activity activity = activityRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Atividade não encontrada"));
