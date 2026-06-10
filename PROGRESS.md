@@ -1,6 +1,6 @@
 # RetailFlow 2.0 — Progress Tracker
 
-> Última atualização: 2026-06-10 (bloqueadores Flyway baseline + Security Headers local corrigidos)
+> Última atualização: 2026-06-10 (Fase 4: 4.1–4.9 + 4.11–4.12 concluídos; pendentes: 4.10 Upload)
 > Branch: main
 
 ---
@@ -12,7 +12,7 @@
 | Fase 1 | Research | ✅ Concluída |
 | Fase 2 | Planejamento (Roadmap) | ✅ Concluída |
 | Fase 3 | Quick Wins | 🔄 Em andamento |
-| Fase 4 | Medium Improvements | ⏳ Pendente |
+| Fase 4 | Medium Improvements | 🔄 Em andamento |
 | Fase 5 | Enterprise Features | ⏳ Pendente |
 
 ---
@@ -86,15 +86,16 @@
 - [x] Queries nativas (Customer, Product) e JPQL filtradas (Deal, Activity) removidas
 - [x] @SQLRestriction cuida do soft delete automaticamente via Criteria API
 
-### 4.3 Redis Cache
-- [ ] `spring-boot-starter-data-redis` + Redis no `docker-compose.yml`
-- [ ] `@Cacheable` em `DashboardService.getSummary()` e listagens
-- [ ] `@CacheEvict` em criação/atualização/exclusão
+### 4.3 Redis Cache ✅ Concluído (2026-06-10)
+- [x] `spring-boot-starter-data-redis` + Redis 7-alpine no `docker-compose.yml`
+- [x] `@EnableCaching` + `@Cacheable("dashboard-summary")` keyed por usuário
+- [x] `@CacheEvict(allEntries=true)` em Customer/Deal/Activity (create/update/delete)
+- [x] `spring.cache.type=simple` local; `redis` + TTL 5min em produção
 
-### 4.4 Rate Limiting (Bucket4j)
-- [ ] `bucket4j-spring-boot-starter`
-- [ ] `/api/auth/login` → 10 req/min por IP
-- [ ] 429 Too Many Requests com `Retry-After` header
+### 4.4 Rate Limiting (Bucket4j) ✅ Concluído (2026-06-10)
+- [x] `bucket4j-core:8.7.0` (sem Spring Boot starter)
+- [x] `LoginRateLimitFilter @Order(2)`: POST /api/auth/login → 10 req/min por IP
+- [x] 429 Too Many Requests com `Retry-After: 60` e `application/problem+json`
 
 ### 4.5 Testes Backend ✅ Concluído (2026-06-10)
 - [x] CustomerServiceTest (8 casos, Mockito)
@@ -103,19 +104,21 @@
 - [x] CustomerRepositoryIT (Testcontainers PostgreSQL 15, 7 casos)
 - [x] JaCoCo 0.8.11 com threshold 40% (haltOnFailure=false)
 
-### 4.6 Refatoração Frontend (Feature Folders)
-- [ ] `src/features/{auth,customers,deals,products,activities,dashboard}/`
-- [ ] Extrair páginas do App.tsx monolítico (~1100 linhas)
-- [ ] `src/shared/components/` e `src/lib/api/`
+### 4.6 Refatoração Frontend (Feature Folders) ✅ Concluído (2026-06-10)
+- [x] `src/features/{auth,customers,deals,products,activities,dashboard}/`
+- [x] App.tsx monolítico (1274 linhas) → ~60 linhas (providers + routing)
+- [x] `src/shared/`, `src/contexts/`, `src/lib/`, `src/types.ts`, `src/constants.ts`
 
-### 4.7 TanStack Query
-- [ ] `@tanstack/react-query` instalado
-- [ ] Substituir `useEffect + useState` por `useQuery` / `useMutation`
-- [ ] `invalidateQueries` após mutations
+### 4.7 TanStack Query ✅ Concluído (2026-06-10)
+- [x] `@tanstack/react-query@5` + `QueryClientProvider` em main.tsx
+- [x] `useQuery` em Dashboard, Customers, Products, Deals, Activities
+- [x] `useMutation` + `invalidateQueries` em todos os dialogs
+- [x] Otimismo local no Kanban via `queryClient.setQueryData`
 
-### 4.8 React Hook Form + Zod
-- [ ] `zod` + `@hookform/resolvers`
-- [ ] Schemas Zod para Customer, Product, Deal, Activity
+### 4.8 React Hook Form + Zod ✅ Concluído (2026-06-10)
+- [x] `zod@3.22.4` + `@hookform/resolvers@3.9.0`
+- [x] Schemas: customerSchema, productSchema, dealSchema, activitySchema
+- [x] `zodResolver` + `helperText` com mensagens de erro em todos os dialogs
 
 ### 4.9 Dashboard com Dados Reais
 - [ ] `GET /api/dashboard/revenue-trend` e `GET /api/dashboard/pipeline-funnel`
@@ -125,13 +128,14 @@
 - [ ] `POST /api/upload` multipart
 - [ ] Componente `ImageUpload` com preview
 
-### 4.11 GitHub Actions CI
-- [ ] `.github/workflows/ci.yml`: JDK 17 + Node 20 + `mvn verify` + `npm ci`
-- [ ] Badge de build no README
+### 4.11 GitHub Actions CI ✅ Concluído (2026-06-10)
+- [x] `.github/workflows/ci.yml`: jobs paralelos backend + frontend
+- [x] Backend: JDK 17 Temurin + `mvn verify` + cache Maven
+- [x] Frontend: Node 20 + `npm ci` + `tsc --noEmit` + `npm run build`
 
-### 4.12 Logs Estruturados
-- [ ] `logstash-logback-encoder`
-- [ ] `logback-spring.xml` JSON para produção, console para dev
+### 4.12 Logs Estruturados ✅ Concluído (2026-06-10)
+- [x] `logstash-logback-encoder:7.4`
+- [x] `logback-spring.xml`: console colorido em local; JSON via LogstashEncoder em prod
 
 ---
 
