@@ -1,4 +1,4 @@
-﻿package com.retailflow.security;
+package com.retailflow.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

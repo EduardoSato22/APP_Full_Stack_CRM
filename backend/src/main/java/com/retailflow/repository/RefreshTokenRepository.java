@@ -1,4 +1,4 @@
-﻿package com.retailflow.repository;
+package com.retailflow.repository;
 
 import com.retailflow.model.RefreshToken;
 import org.springframework.data.jpa.repository.JpaRepository;

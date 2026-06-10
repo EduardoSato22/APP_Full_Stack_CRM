@@ -1,4 +1,4 @@
-﻿package com.retailflow.dto;
+package com.retailflow.dto;
 
 import com.retailflow.model.Product;
 import lombok.Data;

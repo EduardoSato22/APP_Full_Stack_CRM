@@ -1,4 +1,4 @@
-﻿package com.retailflow.security;
+package com.retailflow.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

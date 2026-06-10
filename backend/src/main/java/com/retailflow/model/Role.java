@@ -1,4 +1,4 @@
-﻿package com.retailflow.model;
+package com.retailflow.model;
 
 public enum Role {
     ADMIN, MANAGER, USER

@@ -1,4 +1,4 @@
-﻿package com.retailflow.dto;
+package com.retailflow.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;

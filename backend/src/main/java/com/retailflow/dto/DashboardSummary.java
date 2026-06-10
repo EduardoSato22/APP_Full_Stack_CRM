@@ -1,4 +1,4 @@
-﻿package com.retailflow.dto;
+package com.retailflow.dto;
 
 import lombok.Data;
 

@@ -1,4 +1,4 @@
-﻿package com.retailflow.dto;
+package com.retailflow.dto;
 
 import com.retailflow.model.Product;
 import jakarta.validation.constraints.DecimalMin;

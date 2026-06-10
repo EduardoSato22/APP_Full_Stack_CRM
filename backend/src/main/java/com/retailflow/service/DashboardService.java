@@ -1,4 +1,4 @@
-﻿package com.retailflow.service;
+package com.retailflow.service;
 
 import com.retailflow.dto.DashboardSummary;
 import com.retailflow.model.Deal;

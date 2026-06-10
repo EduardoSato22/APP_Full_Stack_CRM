@@ -1,4 +1,4 @@
-﻿package com.retailflow.security;
+package com.retailflow.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

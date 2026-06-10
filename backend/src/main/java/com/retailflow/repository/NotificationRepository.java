@@ -1,4 +1,4 @@
-﻿package com.retailflow.repository;
+package com.retailflow.repository;
 
 import com.retailflow.model.Notification;
 import org.springframework.data.jpa.repository.JpaRepository;

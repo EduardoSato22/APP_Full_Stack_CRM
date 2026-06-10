@@ -1,4 +1,4 @@
-﻿package com.retailflow.model;
+package com.retailflow.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
