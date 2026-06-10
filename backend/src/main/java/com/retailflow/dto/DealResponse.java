@@ -26,32 +26,4 @@ public class DealResponse {
     private String notes;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
-    public static DealResponse fromEntity(Deal d) {
-        DealResponse r = new DealResponse();
-        r.setId(d.getId());
-        r.setTitle(d.getTitle());
-        r.setValue(d.getValue());
-        r.setProbability(d.getProbability());
-        r.setStage(d.getStage());
-        r.setExpectedCloseDate(d.getExpectedCloseDate());
-        r.setClosedAt(d.getClosedAt());
-        r.setLostReason(d.getLostReason());
-        r.setNotes(d.getNotes());
-        r.setCreatedAt(d.getCreatedAt());
-        r.setUpdatedAt(d.getUpdatedAt());
-        if (d.getCustomer() != null) {
-            r.setCustomerId(d.getCustomer().getId());
-            r.setCustomerName(d.getCustomer().getFirstName() + " " + d.getCustomer().getLastName());
-        }
-        if (d.getAssignedTo() != null) {
-            r.setAssignedToId(d.getAssignedTo().getId());
-            r.setAssignedToName(d.getAssignedTo().getName());
-        }
-        if (d.getCreatedBy() != null) r.setCreatedById(d.getCreatedBy().getId());
-        if (d.getProducts() != null) {
-            r.setProductIds(d.getProducts().stream().map(p -> p.getId()).toList());
-        }
-        return r;
-    }
 }

@@ -1,9 +1,8 @@
-﻿package com.retailflow.repository;
+package com.retailflow.repository;
 
 import com.retailflow.model.Deal;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -13,18 +12,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface DealRepository extends JpaRepository<Deal, Long> {
-    @Query("""
-        SELECT d FROM Deal d WHERE d.deletedAt IS NULL
-        AND (CAST(:stage AS string) IS NULL OR CAST(d.stage AS string) = :stage)
-        AND (:assignedToId IS NULL OR d.assignedTo.id = :assignedToId)
-        AND (d.createdBy.id = :userId OR d.assignedTo.id = :userId)
-        """)
-    Page<Deal> findFiltered(
-            @Param("userId") Long userId,
-            @Param("stage") String stage,
-            @Param("assignedToId") Long assignedToId,
-            Pageable pageable);
+public interface DealRepository extends JpaRepository<Deal, Long>, JpaSpecificationExecutor<Deal> {
 
     List<Deal> findByDeletedAtIsNullAndStageNot(Deal.Stage stage);
 

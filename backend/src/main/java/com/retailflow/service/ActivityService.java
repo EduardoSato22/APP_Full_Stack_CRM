@@ -1,16 +1,19 @@
-﻿package com.retailflow.service;
+package com.retailflow.service;
 
 import com.retailflow.dto.ActivityRequest;
 import com.retailflow.dto.ActivityResponse;
+import com.retailflow.mapper.ActivityMapper;
 import com.retailflow.model.Activity;
 import com.retailflow.model.User;
 import com.retailflow.repository.ActivityRepository;
 import com.retailflow.repository.CustomerRepository;
 import com.retailflow.repository.DealRepository;
 import com.retailflow.repository.UserRepository;
+import com.retailflow.specification.ActivitySpec;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +30,7 @@ public class ActivityService {
     private final DealRepository dealRepository;
     private final UserRepository userRepository;
     private final UserService userService;
+    private final ActivityMapper activityMapper;
 
     private User getCurrentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -34,39 +38,41 @@ public class ActivityService {
     }
 
     public Page<ActivityResponse> list(Activity.Status status, Activity.Type type, Long assignedToId, Long customerId, Pageable pageable) {
-        return activityRepository.findFiltered(
-        status != null ? status.name() : null,
-        type != null ? type.name() : null,
-        assignedToId, customerId, pageable)
-                .map(ActivityResponse::fromEntity);
+        Specification<Activity> spec = ActivitySpec.hasStatus(status)
+                .and(ActivitySpec.hasType(type))
+                .and(ActivitySpec.hasAssignedTo(assignedToId))
+                .and(ActivitySpec.hasCustomer(customerId));
+        return activityRepository.findAll(spec, pageable).map(activityMapper::toResponse);
     }
 
     public List<ActivityResponse> getOverdue() {
         return activityRepository.findOverdue(LocalDateTime.now())
-                .stream().map(ActivityResponse::fromEntity).toList();
+                .stream().map(activityMapper::toResponse).toList();
     }
 
     public List<ActivityResponse> getUpcoming(int days) {
         LocalDateTime now = LocalDateTime.now();
         return activityRepository.findUpcoming(now, now.plusDays(days))
-                .stream().map(ActivityResponse::fromEntity).toList();
+                .stream().map(activityMapper::toResponse).toList();
     }
 
     @Transactional
     public ActivityResponse create(ActivityRequest request) {
         User user = getCurrentUser();
         Activity activity = new Activity();
-        mapToEntity(activity, request);
+        activityMapper.updateEntity(request, activity);
+        resolveRelationships(request, activity);
         activity.setCreatedBy(user);
-        return ActivityResponse.fromEntity(activityRepository.save(activity));
+        return activityMapper.toResponse(activityRepository.save(activity));
     }
 
     @Transactional
     public ActivityResponse update(Long id, ActivityRequest request) {
         Activity activity = activityRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Atividade não encontrada"));
-        mapToEntity(activity, request);
-        return ActivityResponse.fromEntity(activityRepository.save(activity));
+        activityMapper.updateEntity(request, activity);
+        resolveRelationships(request, activity);
+        return activityMapper.toResponse(activityRepository.save(activity));
     }
 
     @Transactional
@@ -75,17 +81,12 @@ public class ActivityService {
                 .orElseThrow(() -> new RuntimeException("Atividade não encontrada"));
         activity.setStatus(Activity.Status.DONE);
         activity.setCompletedAt(LocalDateTime.now());
-        return ActivityResponse.fromEntity(activityRepository.save(activity));
+        return activityMapper.toResponse(activityRepository.save(activity));
     }
 
-    private void mapToEntity(Activity a, ActivityRequest r) {
-        a.setType(r.getType());
-        a.setTitle(r.getTitle());
-        a.setDescription(r.getDescription());
-        a.setDueDate(r.getDueDate());
-        if (r.getPriority() != null) a.setPriority(r.getPriority());
-        if (r.getCustomerId() != null) customerRepository.findById(r.getCustomerId()).ifPresent(a::setCustomer);
-        if (r.getDealId() != null) dealRepository.findById(r.getDealId()).ifPresent(a::setDeal);
-        if (r.getAssignedToId() != null) userRepository.findById(r.getAssignedToId()).ifPresent(a::setAssignedTo);
+    private void resolveRelationships(ActivityRequest request, Activity activity) {
+        if (request.getCustomerId() != null) customerRepository.findById(request.getCustomerId()).ifPresent(activity::setCustomer);
+        if (request.getDealId() != null) dealRepository.findById(request.getDealId()).ifPresent(activity::setDeal);
+        if (request.getAssignedToId() != null) userRepository.findById(request.getAssignedToId()).ifPresent(activity::setAssignedTo);
     }
 }

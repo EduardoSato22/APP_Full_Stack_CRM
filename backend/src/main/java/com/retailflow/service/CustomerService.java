@@ -1,17 +1,20 @@
-﻿package com.retailflow.service;
+package com.retailflow.service;
 
 import com.retailflow.dto.CustomerRequest;
 import com.retailflow.dto.CustomerResponse;
+import com.retailflow.mapper.CustomerMapper;
 import com.retailflow.model.Customer;
 import com.retailflow.model.Role;
 import com.retailflow.model.User;
 import com.retailflow.repository.CustomerRepository;
 import com.retailflow.repository.UserRepository;
+import com.retailflow.specification.CustomerSpec;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +28,7 @@ public class CustomerService {
     private final CustomerRepository customerRepository;
     private final UserRepository userRepository;
     private final UserService userService;
+    private final CustomerMapper customerMapper;
 
     private User getCurrentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -32,16 +36,15 @@ public class CustomerService {
     }
 
     public Page<CustomerResponse> list(String search, Customer.Status status, Pageable pageable) {
-    User user = getCurrentUser();
-    String statusStr = status != null ? status.name() : null;
-    Pageable unsorted = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.unsorted());
-    Page<Customer> page;
-    if (user.getRole() == Role.ADMIN || user.getRole() == Role.MANAGER) {
-        page = customerRepository.findAllFiltered(search, statusStr, unsorted);
-    } else {
-        page = customerRepository.findByUserFiltered(user.getId(), search, statusStr, unsorted);
-    }
-    return page.map(CustomerResponse::fromEntity);
+        User user = getCurrentUser();
+        Specification<Customer> spec = CustomerSpec.hasSearch(search)
+                .and(CustomerSpec.hasStatus(status));
+        if (user.getRole() != Role.ADMIN && user.getRole() != Role.MANAGER) {
+            spec = spec.and(CustomerSpec.isVisibleToUser(user.getId()));
+        }
+        Pageable sorted = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
+                Sort.by(Sort.Direction.DESC, "createdAt"));
+        return customerRepository.findAll(spec, sorted).map(customerMapper::toResponse);
     }
 
     @Transactional
@@ -51,13 +54,14 @@ public class CustomerService {
             throw new RuntimeException("Já existe um cliente com este e-mail");
         }
         Customer customer = new Customer();
-        mapToEntity(customer, request);
+        customerMapper.updateEntity(request, customer);
         customer.setUser(user);
-        return CustomerResponse.fromEntity(customerRepository.save(customer));
+        resolveRelationships(request, customer);
+        return customerMapper.toResponse(customerRepository.save(customer));
     }
 
     public CustomerResponse findById(Long id) {
-        return CustomerResponse.fromEntity(findOwned(id));
+        return customerMapper.toResponse(findOwned(id));
     }
 
     @Transactional
@@ -68,8 +72,9 @@ public class CustomerService {
                 customerRepository.existsByEmailAndUserIdAndDeletedAtIsNull(request.getEmail(), user.getId())) {
             throw new RuntimeException("Já existe um cliente com este e-mail");
         }
-        mapToEntity(customer, request);
-        return CustomerResponse.fromEntity(customerRepository.save(customer));
+        customerMapper.updateEntity(request, customer);
+        resolveRelationships(request, customer);
+        return customerMapper.toResponse(customerRepository.save(customer));
     }
 
     @Transactional
@@ -90,27 +95,9 @@ public class CustomerService {
         return customer;
     }
 
-    private void mapToEntity(Customer c, CustomerRequest r) {
-        c.setFirstName(r.getFirstName());
-        c.setLastName(r.getLastName());
-        c.setEmail(r.getEmail());
-        c.setAge(r.getAge());
-        c.setPhone(r.getPhone());
-        c.setCompany(r.getCompany());
-        c.setPosition(r.getPosition());
-        c.setPhotoUrl(r.getPhotoUrl());
-        c.setStreet(r.getStreet());
-        c.setCity(r.getCity());
-        c.setState(r.getState());
-        c.setZipCode(r.getZipCode());
-        c.setCountry(r.getCountry());
-        c.setNotes(r.getNotes());
-        c.setNextFollowUpDate(r.getNextFollowUpDate());
-        if (r.getStatus() != null) c.setStatus(r.getStatus());
-        if (r.getSource() != null) c.setSource(r.getSource());
-        if (r.getTags() != null) c.setTags(r.getTags());
-        if (r.getAssignedToId() != null) {
-            userRepository.findById(r.getAssignedToId()).ifPresent(c::setAssignedTo);
+    private void resolveRelationships(CustomerRequest request, Customer customer) {
+        if (request.getAssignedToId() != null) {
+            userRepository.findById(request.getAssignedToId()).ifPresent(customer::setAssignedTo);
         }
     }
 }

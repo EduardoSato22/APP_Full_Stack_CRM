@@ -1,14 +1,17 @@
-﻿package com.retailflow.service;
+package com.retailflow.service;
 
 import com.retailflow.dto.ProductRequest;
 import com.retailflow.dto.ProductResponse;
+import com.retailflow.mapper.ProductMapper;
 import com.retailflow.model.Product;
 import com.retailflow.model.User;
 import com.retailflow.repository.ProductCategoryRepository;
 import com.retailflow.repository.ProductRepository;
+import com.retailflow.specification.ProductSpec;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +26,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductCategoryRepository categoryRepository;
     private final UserService userService;
+    private final ProductMapper productMapper;
 
     private User getCurrentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -30,28 +34,32 @@ public class ProductService {
     }
 
     public Page<ProductResponse> list(String search, Product.Status status, Long categoryId, Pageable pageable) {
-        return productRepository.findByUserFiltered(getCurrentUser().getId(), search,
-        status != null ? status.name() : null, categoryId, pageable)
-                .map(ProductResponse::fromEntity);
+        Specification<Product> spec = ProductSpec.hasUserId(getCurrentUser().getId())
+                .and(ProductSpec.hasSearch(search))
+                .and(ProductSpec.hasStatus(status))
+                .and(ProductSpec.hasCategoryId(categoryId));
+        return productRepository.findAll(spec, pageable).map(productMapper::toResponse);
     }
 
     @Transactional
     public ProductResponse create(ProductRequest request) {
         Product product = new Product();
-        mapToEntity(product, request);
+        productMapper.updateEntity(request, product);
         product.setUser(getCurrentUser());
-        return ProductResponse.fromEntity(productRepository.save(product));
+        resolveRelationships(request, product);
+        return productMapper.toResponse(productRepository.save(product));
     }
 
     public ProductResponse findById(Long id) {
-        return ProductResponse.fromEntity(findOwned(id));
+        return productMapper.toResponse(findOwned(id));
     }
 
     @Transactional
     public ProductResponse update(Long id, ProductRequest request) {
         Product product = findOwned(id);
-        mapToEntity(product, request);
-        return ProductResponse.fromEntity(productRepository.save(product));
+        productMapper.updateEntity(request, product);
+        resolveRelationships(request, product);
+        return productMapper.toResponse(productRepository.save(product));
     }
 
     @Transactional
@@ -67,13 +75,13 @@ public class ProductService {
         int newStock = product.getStock() + delta;
         if (newStock < 0) throw new RuntimeException("Estoque insuficiente");
         product.setStock(newStock);
-        return ProductResponse.fromEntity(productRepository.save(product));
+        return productMapper.toResponse(productRepository.save(product));
     }
 
     public List<ProductResponse> getLowStock(int threshold) {
         return productRepository
                 .findAllByUserIdAndDeletedAtIsNullAndStockLessThanEqual(getCurrentUser().getId(), threshold)
-                .stream().map(ProductResponse::fromEntity).toList();
+                .stream().map(productMapper::toResponse).toList();
     }
 
     private Product findOwned(Long id) {
@@ -85,18 +93,9 @@ public class ProductService {
         return product;
     }
 
-    private void mapToEntity(Product p, ProductRequest r) {
-        p.setName(r.getName());
-        p.setDescription(r.getDescription());
-        p.setPrice(r.getPrice());
-        p.setCostPrice(r.getCostPrice());
-        p.setSku(r.getSku());
-        if (r.getStock() != null) p.setStock(r.getStock());
-        if (r.getUnit() != null) p.setUnit(r.getUnit());
-        if (r.getStatus() != null) p.setStatus(r.getStatus());
-        p.setImageUrl(r.getImageUrl());
-        if (r.getCategoryId() != null) {
-            categoryRepository.findById(r.getCategoryId()).ifPresent(p::setCategory);
+    private void resolveRelationships(ProductRequest request, Product product) {
+        if (request.getCategoryId() != null) {
+            categoryRepository.findById(request.getCategoryId()).ifPresent(product::setCategory);
         }
     }
 }
