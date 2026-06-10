@@ -71,18 +71,67 @@
 
 ## FASE 4 — MEDIUM IMPROVEMENTS (detalhes em .specs/roadmap.md)
 
-- [ ] 4.1 MapStruct
-- [ ] 4.2 JPA Specifications
-- [ ] 4.3 Redis Cache
-- [ ] 4.4 Rate Limiting (Bucket4j)
-- [ ] 4.5 Testes Backend (JUnit + Testcontainers)
-- [ ] 4.6 Refatoração Frontend (Feature Folders)
-- [ ] 4.7 TanStack Query
-- [ ] 4.8 React Hook Form + Zod
-- [ ] 4.9 Dashboard com Dados Reais
-- [ ] 4.10 Upload de Arquivos
-- [ ] 4.11 GitHub Actions CI
-- [ ] 4.12 Logs Estruturados
+### 4.1 MapStruct ✅ Concluído (2026-06-10)
+- [x] mapstruct 1.5.5.Final + lombok-mapstruct-binding no pom.xml
+- [x] Lombok configurado ANTES do MapStruct no annotationProcessorPaths
+- [x] CustomerMapper, ProductMapper, DealMapper, ActivityMapper
+- [x] `toResponse()` substitui `fromEntity()` estático nos DTOs
+- [x] `updateEntity(@MappingTarget)` com IGNORE_NULL para enums opcionais
+- [x] `resolveRelationships()` nos services para lookups de DB
+
+### 4.2 JPA Specifications ✅ Concluído (2026-06-10)
+- [x] CustomerSpec, ProductSpec, DealSpec, ActivitySpec
+- [x] LEFT JOIN em specs com relações nullable + query.distinct(true)
+- [x] Todos os 4 repositories extendem JpaSpecificationExecutor
+- [x] Queries nativas (Customer, Product) e JPQL filtradas (Deal, Activity) removidas
+- [x] @SQLRestriction cuida do soft delete automaticamente via Criteria API
+
+### 4.3 Redis Cache
+- [ ] `spring-boot-starter-data-redis` + Redis no `docker-compose.yml`
+- [ ] `@Cacheable` em `DashboardService.getSummary()` e listagens
+- [ ] `@CacheEvict` em criação/atualização/exclusão
+
+### 4.4 Rate Limiting (Bucket4j)
+- [ ] `bucket4j-spring-boot-starter`
+- [ ] `/api/auth/login` → 10 req/min por IP
+- [ ] 429 Too Many Requests com `Retry-After` header
+
+### 4.5 Testes Backend ✅ Concluído (2026-06-10)
+- [x] CustomerServiceTest (8 casos, Mockito)
+- [x] AuthServiceTest (7 casos, Mockito)
+- [x] CustomerControllerTest (@SpringBootTest + MockMvc + @WithMockUser)
+- [x] CustomerRepositoryIT (Testcontainers PostgreSQL 15, 7 casos)
+- [x] JaCoCo 0.8.11 com threshold 40% (haltOnFailure=false)
+
+### 4.6 Refatoração Frontend (Feature Folders)
+- [ ] `src/features/{auth,customers,deals,products,activities,dashboard}/`
+- [ ] Extrair páginas do App.tsx monolítico (~1100 linhas)
+- [ ] `src/shared/components/` e `src/lib/api/`
+
+### 4.7 TanStack Query
+- [ ] `@tanstack/react-query` instalado
+- [ ] Substituir `useEffect + useState` por `useQuery` / `useMutation`
+- [ ] `invalidateQueries` após mutations
+
+### 4.8 React Hook Form + Zod
+- [ ] `zod` + `@hookform/resolvers`
+- [ ] Schemas Zod para Customer, Product, Deal, Activity
+
+### 4.9 Dashboard com Dados Reais
+- [ ] `GET /api/dashboard/revenue-trend` e `GET /api/dashboard/pipeline-funnel`
+- [ ] Frontend conecta gráficos a dados reais
+
+### 4.10 Upload de Arquivos
+- [ ] `POST /api/upload` multipart
+- [ ] Componente `ImageUpload` com preview
+
+### 4.11 GitHub Actions CI
+- [ ] `.github/workflows/ci.yml`: JDK 17 + Node 20 + `mvn verify` + `npm ci`
+- [ ] Badge de build no README
+
+### 4.12 Logs Estruturados
+- [ ] `logstash-logback-encoder`
+- [ ] `logback-spring.xml` JSON para produção, console para dev
 
 ---
 
