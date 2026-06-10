@@ -2,6 +2,7 @@ import {
   useCallback, useEffect, useMemo, useState,
   createContext, useContext, ReactNode, FormEvent,
 } from 'react';
+import type { PaletteMode } from '@mui/material';
 import {
   Alert, AppBar, Avatar, Badge, Box, Button, Card, CardActions,
   CardContent, CardMedia, Chip, CircularProgress, Container,
@@ -10,7 +11,7 @@ import {
   List, ListItem, ListItemButton, ListItemIcon, ListItemText,
   Menu, MenuItem, Paper, Select, Stack, Tab, Tabs, TextField,
   ThemeProvider, Toolbar, Tooltip, Typography, createTheme, alpha,
-  FormControl, InputLabel,
+  FormControl, InputLabel, useTheme,
 } from '@mui/material';
 import {
   Add as AddIcon, Assignment as ActivityIcon,
@@ -24,6 +25,7 @@ import {
   Phone as PhoneIcon, Search as SearchIcon,
   Storefront as StoreIcon, TrendingUp as TrendingUpIcon,
   CheckCircle as DoneIcon, Warning as WarningIcon,
+  Brightness4 as DarkModeIcon, Brightness7 as LightModeIcon,
 } from '@mui/icons-material';
 import { useForm } from 'react-hook-form';
 import {
@@ -33,15 +35,26 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid,
   Tooltip as ReTooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend,
 } from 'recharts';
+import {
+  DndContext, DragEndEvent, DragOverlay, DragStartEvent,
+  PointerSensor, useSensor, useSensors,
+} from '@dnd-kit/core';
+import { useDraggable, useDroppable } from '@dnd-kit/core';
 
 // ─── THEME ───────────────────────────────────────────────────────────────────
-const theme = createTheme({
+const createAppTheme = (mode: PaletteMode) => createTheme({
   palette: {
-    mode: 'light',
-    primary: { main: '#0F172A' },
+    mode,
+    primary: { main: mode === 'light' ? '#0F172A' : '#E2E8F0' },
     secondary: { main: '#4F46E5' },
-    background: { default: '#F1F5F9', paper: '#FFFFFF' },
-    text: { primary: '#1E293B', secondary: '#64748B' },
+    background: {
+      default: mode === 'light' ? '#F1F5F9' : '#0F172A',
+      paper:   mode === 'light' ? '#FFFFFF'  : '#1E293B',
+    },
+    text: {
+      primary:   mode === 'light' ? '#1E293B' : '#F1F5F9',
+      secondary: mode === 'light' ? '#64748B' : '#94A3B8',
+    },
   },
   shape: { borderRadius: 12 },
   typography: {
@@ -67,6 +80,8 @@ const theme = createTheme({
     },
   },
 });
+
+const ColorModeContext = createContext({ toggleColorMode: () => {} });
 
 const API = import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
 const STAGE_COLORS: Record<string, string> = {
@@ -162,11 +177,26 @@ const useApi = () => {
 
 // ─── APP ──────────────────────────────────────────────────────────────────────
 export default function App() {
+  const [mode, setMode] = useState<PaletteMode>(
+    () => (localStorage.getItem('colorMode') as PaletteMode) ?? 'light'
+  );
   const [user, setUser] = useState<AuthUser | null>(() => {
     const s = localStorage.getItem('user');
     return s ? JSON.parse(s) : null;
   });
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'));
+
+  const colorMode = useMemo(() => ({
+    toggleColorMode: () => {
+      setMode(prev => {
+        const next = prev === 'light' ? 'dark' : 'light';
+        localStorage.setItem('colorMode', next);
+        return next;
+      });
+    },
+  }), []);
+
+  const theme = useMemo(() => createAppTheme(mode), [mode]);
 
   const login = (u: AuthUser, t: string) => {
     localStorage.setItem('token', t);
@@ -174,20 +204,30 @@ export default function App() {
     setToken(t); setUser(u);
   };
   const logout = () => {
-    localStorage.clear(); setToken(null); setUser(null);
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setToken(null); setUser(null);
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <AuthContext.Provider value={{ user, token, login, logout }}>
-        {!user ? <LoginPage /> : <PortalRoutes />}
-      </AuthContext.Provider>
-    </ThemeProvider>
+    <ColorModeContext.Provider value={colorMode}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <AuthContext.Provider value={{ user, token, login, logout }}>
+          {!user ? <LoginPage /> : <PortalRoutes />}
+        </AuthContext.Provider>
+      </ThemeProvider>
+    </ColorModeContext.Provider>
   );
 }
 
 // ─── LOGIN ────────────────────────────────────────────────────────────────────
+const DEMO_USERS = [
+  { label: 'Administrador', email: 'admin@retailflow.demo',   password: 'Admin123',   color: '#0F172A', role: 'Admin' },
+  { label: 'Gerente',       email: 'manager@retailflow.demo', password: 'Manager123', color: '#4F46E5', role: 'Manager' },
+  { label: 'Vendedor',      email: 'sales@retailflow.demo',   password: 'Sales123',   color: '#0EA5E9', role: 'Vendas' },
+];
+
 function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -195,10 +235,27 @@ function LoginPage() {
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const { login } = useAuth();
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault(); setLoading(true); setError('');
+  const doLogin = async (email: string, password: string) => {
+    setLoading(true); setError('');
     try {
-      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
+      const res = await fetch(`${API}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      if (!res.ok) { const b = await res.json().catch(() => ({})); throw new Error(b.message || 'Erro'); }
+      const data = await res.json();
+      login({ userId: data.userId, name: data.name, email: data.email, role: data.role }, data.token);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Falha ao autenticar');
+    } finally { setLoading(false); }
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
+    setLoading(true); setError('');
+    try {
       const payload = isLogin ? { email: form.email, password: form.password } : form;
       const res = await fetch(`${API}${endpoint}`, {
         method: 'POST',
@@ -219,9 +276,9 @@ function LoginPage() {
       background: 'linear-gradient(135deg,#0F172A 0%,#1E3A5F 100%)',
       display: 'flex', alignItems: 'center', justifyContent: 'center', p: 2,
     }}>
-      <Container maxWidth="xs">
+      <Container maxWidth="sm">
         <Paper elevation={24} sx={{ p: 4, borderRadius: 4 }}>
-          <Stack spacing={2} textAlign="center" mb={4}>
+          <Stack spacing={2} textAlign="center" mb={3}>
             <Box sx={{
               width: 60, height: 60, borderRadius: '50%', bgcolor: 'primary.main',
               color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto',
@@ -233,6 +290,33 @@ function LoginPage() {
               {isLogin ? 'Acesse sua conta' : 'Crie sua conta'}
             </Typography>
           </Stack>
+
+          {/* Demo quick-access */}
+          <Paper variant="outlined" sx={{ p: 2, mb: 3, borderRadius: 2, bgcolor: alpha('#4F46E5', 0.04), borderColor: alpha('#4F46E5', 0.2) }}>
+            <Typography variant="caption" fontWeight={700} color="secondary" sx={{ display: 'block', mb: 1.5, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+              Acesso rápido para recrutadores
+            </Typography>
+            <Stack direction="row" spacing={1}>
+              {DEMO_USERS.map(u => (
+                <Button key={u.email} variant="outlined" size="small" disabled={loading}
+                  onClick={() => doLogin(u.email, u.password)}
+                  sx={{
+                    flex: 1, borderColor: u.color, color: u.color, fontSize: 12, fontWeight: 600,
+                    '&:hover': { bgcolor: alpha(u.color, 0.08), borderColor: u.color },
+                  }}>
+                  {u.label}
+                </Button>
+              ))}
+            </Stack>
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+              Clique para entrar instantaneamente com dados de demonstração
+            </Typography>
+          </Paper>
+
+          <Divider sx={{ mb: 3 }}>
+            <Typography variant="caption" color="text.secondary">ou entre com sua conta</Typography>
+          </Divider>
+
           {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
           <Box component="form" onSubmit={handleSubmit}>
             {!isLogin && (
@@ -296,6 +380,8 @@ function AppShell() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [notifCount, setNotifCount] = useState(0);
   const api = useApi();
+  const muiTheme = useTheme();
+  const { toggleColorMode } = useContext(ColorModeContext);
 
   useEffect(() => {
     api<{ unread: number }>('/api/notifications/count')
@@ -334,7 +420,7 @@ function AppShell() {
                   borderRadius: 2,
                   bgcolor: active ? 'primary.main' : 'transparent',
                   color: active ? 'white' : 'text.secondary',
-                  '&:hover': { bgcolor: active ? 'primary.dark' : alpha(theme.palette.primary.main, 0.06) },
+                  '&:hover': { bgcolor: active ? 'primary.dark' : alpha(muiTheme.palette.primary.main, 0.06) },
                 }}>
                 <ListItemIcon sx={{ color: 'inherit', minWidth: 36 }}>{item.icon}</ListItemIcon>
                 <ListItemText primary={item.label} primaryTypographyProps={{ fontWeight: active ? 600 : 400, fontSize: 14 }} />
@@ -380,6 +466,11 @@ function AppShell() {
             <Typography variant="h6" sx={{ flexGrow: 1 }}>
               {NAV_ITEMS.find(i => i.path === location.pathname)?.label ?? 'CRM'}
             </Typography>
+            <Tooltip title={muiTheme.palette.mode === 'dark' ? 'Modo claro' : 'Modo escuro'}>
+              <IconButton onClick={toggleColorMode} sx={{ mr: 0.5 }}>
+                {muiTheme.palette.mode === 'dark' ? <LightModeIcon /> : <DarkModeIcon />}
+              </IconButton>
+            </Tooltip>
             <IconButton onClick={openNotifications}>
               <Badge badgeContent={notifCount} color="error"><NotificationsIcon /></Badge>
             </IconButton>
@@ -803,12 +894,74 @@ function ProductDialog({ open, product, onClose, onSaved }: { open: boolean; pro
 }
 
 // ─── DEALS (KANBAN) ───────────────────────────────────────────────────────────
+function DraggableDealCard({ deal, stage }: { deal: Deal; stage: string }) {
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: `deal-${deal.id}`,
+    data: { deal, fromStage: stage },
+  });
+  const style = transform ? { transform: `translate3d(${transform.x}px,${transform.y}px,0)` } : undefined;
+  return (
+    <Card ref={setNodeRef} style={style} {...listeners} {...attributes}
+      sx={{
+        cursor: isDragging ? 'grabbing' : 'grab',
+        border: '1px solid', borderColor: 'divider',
+        opacity: isDragging ? 0.4 : 1,
+        transition: isDragging ? 'none' : 'box-shadow 0.15s',
+        '&:hover': { boxShadow: '0 4px 12px rgb(0 0 0/0.12)' },
+        touchAction: 'none',
+      }}>
+      <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
+        <Typography variant="body2" fontWeight={600} noWrap>{deal.title}</Typography>
+        <Typography variant="caption" color="text.secondary">{deal.customerName}</Typography>
+        {deal.value > 0 && <Typography variant="body2" fontWeight={700} color="secondary.main">{BRL.format(deal.value)}</Typography>}
+        <Box mt={1}>
+          <Typography variant="caption" color="text.secondary">Prob: {deal.probability}%</Typography>
+          <LinearProgress variant="determinate" value={deal.probability} sx={{ height: 4, borderRadius: 2, mt: 0.5 }} />
+        </Box>
+      </CardContent>
+    </Card>
+  );
+}
+
+function DroppableStageColumn({ stage, deals }: { stage: string; deals: Deal[] }) {
+  const { setNodeRef, isOver } = useDroppable({ id: `stage-${stage}` });
+  const total = deals.reduce((s, d) => s + (d.value ?? 0), 0);
+  return (
+    <Box sx={{ width: 270, flexShrink: 0 }}>
+      <Box sx={{ p: 1.5, bgcolor: STAGE_COLORS[stage] + '18', borderRadius: 2, mb: 1.5, borderLeft: `4px solid ${STAGE_COLORS[stage]}` }}>
+        <Stack direction="row" justifyContent="space-between" alignItems="center">
+          <Typography fontWeight={700} fontSize={13}>{STAGE_LABELS[stage]}</Typography>
+          <Chip label={deals.length} size="small" sx={{ bgcolor: STAGE_COLORS[stage], color: 'white', fontWeight: 700, height: 22 }} />
+        </Stack>
+        {total > 0 && <Typography variant="caption" color="text.secondary">{BRL.format(total)}</Typography>}
+      </Box>
+      <Box ref={setNodeRef} sx={{
+        minHeight: 80, borderRadius: 2, transition: 'background 0.15s',
+        bgcolor: isOver ? alpha(STAGE_COLORS[stage], 0.1) : 'transparent',
+        border: isOver ? `2px dashed ${STAGE_COLORS[stage]}` : '2px solid transparent',
+      }}>
+        <Stack spacing={1}>
+          {deals.map(deal => <DraggableDealCard key={deal.id} deal={deal} stage={stage} />)}
+          {deals.length === 0 && !isOver && (
+            <Box sx={{ p: 2, textAlign: 'center', border: '2px dashed', borderColor: 'divider', borderRadius: 2 }}>
+              <Typography variant="caption" color="text.secondary">Sem deals</Typography>
+            </Box>
+          )}
+        </Stack>
+      </Box>
+    </Box>
+  );
+}
+
 function DealsPage() {
   const api = useApi();
   const [kanban, setKanban] = useState<Record<string, Deal[]>>({});
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [error, setError] = useState('');
+  const [activeDeal, setActiveDeal] = useState<Deal | null>(null);
+
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -819,16 +972,41 @@ function DealsPage() {
 
   useEffect(() => { load(); }, []);
 
-  const handleStageChange = async (dealId: number, stage: string) => {
+  const handleStageChange = async (dealId: number, toStage: string) => {
     let lostReason: string | null = null;
-    if (stage === 'LOST') {
+    if (toStage === 'LOST') {
       lostReason = prompt('Motivo da perda:');
       if (!lostReason) return;
     }
-    const params = new URLSearchParams({ stage });
+    const params = new URLSearchParams({ stage: toStage });
     if (lostReason) params.set('lostReason', lostReason);
     await api(`/api/deals/${dealId}/stage?${params}`, { method: 'PUT' }).catch(e => setError(e.message));
     load();
+  };
+
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveDeal(event.active.data.current?.deal ?? null);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    setActiveDeal(null);
+    const { active, over } = event;
+    if (!over) return;
+    const fromStage: string = active.data.current?.fromStage;
+    const toStage: string = (over.id as string).replace('stage-', '');
+    const dealId: number = active.data.current?.deal?.id;
+    if (fromStage !== toStage && dealId) {
+      setKanban(prev => {
+        const deal = prev[fromStage]?.find(d => d.id === dealId);
+        if (!deal) return prev;
+        return {
+          ...prev,
+          [fromStage]: (prev[fromStage] ?? []).filter(d => d.id !== dealId),
+          [toStage]: [...(prev[toStage] ?? []), { ...deal, stage: toStage }],
+        };
+      });
+      handleStageChange(dealId, toStage);
+    }
   };
 
   const STAGES = ['PROSPECTING', 'QUALIFICATION', 'PROPOSAL', 'NEGOTIATION', 'WON', 'LOST'];
@@ -838,7 +1016,7 @@ function DealsPage() {
       <Stack direction="row" justifyContent="space-between" alignItems="center">
         <Box>
           <Typography variant="h4">Pipeline de Vendas</Typography>
-          <Typography color="text.secondary">Arraste os cards para mover estágios</Typography>
+          <Typography color="text.secondary">Arraste os cards para mover entre estágios</Typography>
         </Box>
         <Button variant="contained" startIcon={<AddIcon />} onClick={() => setDialogOpen(true)}>Nova Negociação</Button>
       </Stack>
@@ -846,53 +1024,26 @@ function DealsPage() {
       {error && <Alert severity="error" onClose={() => setError('')}>{error}</Alert>}
 
       {loading ? <LoadingCenter /> : (
-        <Box sx={{ overflowX: 'auto', pb: 2 }}>
-          <Stack direction="row" spacing={2} sx={{ minWidth: STAGES.length * 280 }}>
-            {STAGES.map(stage => {
-              const deals = kanban[stage] ?? [];
-              const total = deals.reduce((s, d) => s + (d.value ?? 0), 0);
-              return (
-                <Box key={stage} sx={{ width: 270, flexShrink: 0 }}>
-                  <Box sx={{ p: 1.5, bgcolor: STAGE_COLORS[stage] + '18', borderRadius: 2, mb: 1.5, borderLeft: `4px solid ${STAGE_COLORS[stage]}` }}>
-                    <Stack direction="row" justifyContent="space-between" alignItems="center">
-                      <Typography fontWeight={700} fontSize={13}>{STAGE_LABELS[stage]}</Typography>
-                      <Chip label={deals.length} size="small" sx={{ bgcolor: STAGE_COLORS[stage], color: 'white', fontWeight: 700, height: 22 }} />
-                    </Stack>
-                    {total > 0 && <Typography variant="caption" color="text.secondary">{BRL.format(total)}</Typography>}
-                  </Box>
-                  <Stack spacing={1}>
-                    {deals.map(deal => (
-                      <Card key={deal.id} sx={{ cursor: 'pointer', border: '1px solid', borderColor: 'divider' }}>
-                        <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
-                          <Typography variant="body2" fontWeight={600} noWrap>{deal.title}</Typography>
-                          <Typography variant="caption" color="text.secondary">{deal.customerName}</Typography>
-                          {deal.value > 0 && <Typography variant="body2" fontWeight={700} color="secondary.main">{BRL.format(deal.value)}</Typography>}
-                          <Box mt={1}>
-                            <Typography variant="caption" color="text.secondary">Prob: {deal.probability}%</Typography>
-                            <LinearProgress variant="determinate" value={deal.probability} sx={{ height: 4, borderRadius: 2, mt: 0.5 }} />
-                          </Box>
-                          <Stack direction="row" spacing={0.5} mt={1} flexWrap="wrap">
-                            {STAGES.filter(s => s !== stage).map(s => (
-                              <Button key={s} size="small" onClick={() => handleStageChange(deal.id, s)}
-                                sx={{ fontSize: 10, py: 0, px: 1, minWidth: 0, height: 22, bgcolor: STAGE_COLORS[s] + '20', color: STAGE_COLORS[s] }}>
-                                {STAGE_LABELS[s]}
-                              </Button>
-                            ))}
-                          </Stack>
-                        </CardContent>
-                      </Card>
-                    ))}
-                    {deals.length === 0 && (
-                      <Box sx={{ p: 2, textAlign: 'center', border: '2px dashed', borderColor: 'divider', borderRadius: 2 }}>
-                        <Typography variant="caption" color="text.secondary">Sem deals</Typography>
-                      </Box>
-                    )}
-                  </Stack>
-                </Box>
-              );
-            })}
-          </Stack>
-        </Box>
+        <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+          <Box sx={{ overflowX: 'auto', pb: 2 }}>
+            <Stack direction="row" spacing={2} sx={{ minWidth: STAGES.length * 290 }}>
+              {STAGES.map(stage => (
+                <DroppableStageColumn key={stage} stage={stage} deals={kanban[stage] ?? []} />
+              ))}
+            </Stack>
+          </Box>
+          <DragOverlay>
+            {activeDeal && (
+              <Card sx={{ width: 260, cursor: 'grabbing', boxShadow: '0 8px 24px rgb(0 0 0/0.2)', rotate: '2deg' }}>
+                <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
+                  <Typography variant="body2" fontWeight={600} noWrap>{activeDeal.title}</Typography>
+                  <Typography variant="caption" color="text.secondary">{activeDeal.customerName}</Typography>
+                  {activeDeal.value > 0 && <Typography variant="body2" fontWeight={700} color="secondary.main">{BRL.format(activeDeal.value)}</Typography>}
+                </CardContent>
+              </Card>
+            )}
+          </DragOverlay>
+        </DndContext>
       )}
 
       <DealDialog open={dialogOpen} onClose={() => setDialogOpen(false)} onSaved={() => { setDialogOpen(false); load(); }} />

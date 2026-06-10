@@ -1,0 +1,2 @@
+-- V2 - Dados de demonstração são gerenciados pelo DemoDataLoader (Spring CommandLineRunner)
+-- Ver: com.retailflow.config.DemoDataLoader
