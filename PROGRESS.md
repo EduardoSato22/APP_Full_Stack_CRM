@@ -1,6 +1,6 @@
 # RetailFlow 2.0 — Progress Tracker
 
-> Última atualização: 2026-06-10
+> Última atualização: 2026-06-10 (bloqueadores Flyway baseline + Security Headers local corrigidos)
 > Branch: main
 
 ---
@@ -37,11 +37,15 @@
 ### 3.4 Flyway (Migrations)
 - [x] Dependência `flyway-core` adicionada
 - [x] `V1__create_schema.sql` criado com schema completo + índices
+- [x] `V2__seed_demo.sql` placeholder (seed via DemoDataLoader)
+- [x] `V3__add_missing_columns.sql`: color em product_categories, deleted_at em activities
 - [x] Flyway desabilitado no perfil local (H2); ativo em produção
 - [x] `ddl-auto=update` → `validate` em produção
+- [x] `baseline-on-migrate=true` + `baseline-version=1` para deploy em DB existente
 
 ### 3.5 Security Headers
 - [x] CSP, HSTS (31536000s + includeSubDomains), X-Frame-Options DENY, nosniff, Referrer-Policy
+- [x] Headers condicionais por perfil: DENY+HSTS+CSP em produção; sameOrigin em local (H2 console)
 
 ### 3.6 Soft Delete Declarativo
 - [x] `@SQLDelete` + `@SQLRestriction` em: Customer, Product, Deal, Activity, User
