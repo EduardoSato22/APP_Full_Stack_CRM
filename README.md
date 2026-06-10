@@ -1,150 +1,211 @@
-# RetailFlow · CRM de Clientes e Catálogo de Produtos
+# RetailFlow CRM & Inventory Management
 
-![Java](https://img.shields.io/badge/Java-17-orange) ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2-green) ![React](https://img.shields.io/badge/React-18-blue) ![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL-blue)
+![Java](https://img.shields.io/badge/Java-17-ED8B00?logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2-6DB33F?logo=springboot&logoColor=white)
+![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
+![License](https://img.shields.io/badge/license-MIT-green)
 
-RetailFlow é um CRM acadêmico completo criado para a disciplina **Frameworks Web II (Unilavras)**. O backend (Spring Boot) expõe uma API segura com JWT e JPA, enquanto o frontend (React + Vite) entrega uma experiência responsiva para gerenciar clientes e produtos.
+Sistema empresarial completo de **CRM, gestão de produtos e pipeline de vendas** — construído como vitrine técnica de desenvolvimento pleno/sênior Java Spring Boot.
+
+> Acesse a demo ao vivo → **[retailflow-front.vercel.app](https://retailflow-front.vercel.app)**
 
 ---
 
-## Principais Recursos
-- CRUD completo de clientes e produtos, com relacionamento por usuário
-- Autenticação e autorização por JWT e Spring Security
-- Documentação viva via Swagger/OpenAPI
-- Deploy pensado para Render (backend) e Vercel (frontend)
-- Scripts e infraestrutura preparados para testes locais com Postgres ou H2
+## Demo rápida
+
+Na tela de login, clique em um dos botões de acesso rápido:
+
+| Perfil | Email | Senha |
+|--------|-------|-------|
+| Administrador | `admin@retailflow.demo` | `Admin123` |
+| Gerente | `manager@retailflow.demo` | `Manager123` |
+| Vendedor | `sales@retailflow.demo` | `Sales123` |
+
+---
+
+## Funcionalidades
+
+### CRM de Clientes
+- Cadastro completo com empresa, cargo, endereço, tags e notas
+- Pipeline de status: Lead → Prospect → Active → Churned
+- Fontes de aquisição (Organic, Referral, ADS, Cold Outreach, Event)
+- Histórico de receita por cliente
+
+### Pipeline de Vendas (Kanban)
+- Board drag-and-drop com 6 estágios (Prospecção → Ganho/Perdido)
+- Cálculo automático de probabilidade por estágio
+- Associação de produtos ao deal
+
+### Gestão de Produtos & Estoque
+- Catálogo com categorias, SKU, custo e margem automática
+- Controle de estoque com alertas visuais
+
+### Dashboard Analítico
+- KPIs: clientes ativos, pipeline total, receita do mês, taxa de conversão
+- Gráfico de receita por mês (12 meses)
+- Funil de vendas por estágio
+- Distribuição de clientes por status (pizza)
+
+### Atividades & Notificações
+- Tipos: Call, Email, Meeting, Task, Note, WhatsApp
+- Prioridades: Low, Medium, High, Urgent
+- Notificações em tempo real (badge no sino)
+
+---
+
+## Stack Técnica
+
+### Backend
+| Tecnologia | Uso |
+|-----------|-----|
+| Java 17 + Spring Boot 3.2 | Core da aplicação |
+| Spring Security + JWT | Autenticação stateless |
+| Spring Data JPA + Hibernate | ORM e queries |
+| Flyway | Migrations versionadas de banco |
+| PostgreSQL / H2 | Produção / desenvolvimento local |
+| Springdoc OpenAPI 2 | Swagger UI automático |
+| Lombok | Redução de boilerplate |
+
+**Padrões implementados:**
+- RFC 7807 Problem Details (`application/problem+json`) no exception handler
+- Correlation ID por request via MDC (`X-Correlation-ID` no header)
+- Soft Delete declarativo com `@SQLDelete` + `@SQLRestriction`
+- Security Headers: CSP, HSTS, X-Frame-Options DENY, nosniff, Referrer-Policy
+- Seed idempotente (`DemoDataLoader`) com dados realistas em pt-BR
+
+### Frontend
+| Tecnologia | Uso |
+|-----------|-----|
+| React 18 + TypeScript 5 | UI e tipagem |
+| Vite 7 | Build tool |
+| Material UI 5 | Design system |
+| React Router DOM 6 | Navegação SPA |
+| React Hook Form | Formulários |
+| @dnd-kit | Drag-and-drop Kanban |
+| Recharts | Gráficos do dashboard |
+
+**Features de UX:**
+- Dark Mode com toggle no header (persistido em localStorage)
+- Acesso rápido para recrutadores na tela de login
+- Drag-and-drop com feedback visual e atualização otimista
 
 ---
 
 ## Arquitetura
-- **Backend**: Java 17, Spring Boot, Spring Data JPA, Spring Security, JWT, PostgreSQL/H2, Maven, springdoc-openapi
-- **Frontend**: React 18, TypeScript, Vite, React Router DOM, Material UI, Axios
 
 ```
 retailflow/
-├── backend/    # API REST (Java/Spring)
-├── frontend/   # Single Page Application (React)
-├── docker-compose.yml
-└── README.md
+├── backend/                        # API REST — Java / Spring Boot
+│   ├── src/main/java/com/retailflow/
+│   │   ├── config/                 # DemoDataLoader, OpenAPI
+│   │   ├── controller/             # REST endpoints
+│   │   ├── dto/                    # Request / Response DTOs
+│   │   ├── exception/              # GlobalExceptionHandler (RFC 7807)
+│   │   ├── filter/                 # CorrelationIdFilter
+│   │   ├── model/                  # Entidades JPA
+│   │   ├── repository/             # Spring Data JPA
+│   │   ├── security/               # JWT, SecurityConfig
+│   │   └── service/                # Lógica de negócio
+│   └── src/main/resources/
+│       ├── db/migration/           # Flyway V1 (schema) + V2 (ref. seed)
+│       └── application*.properties
+├── frontend/                       # SPA — React / TypeScript
+│   └── src/
+│       └── App.tsx                 # Aplicação completa (~1200 linhas)
+└── docker-compose.yml
+```
+
+**Fluxo de dados:**
+
+```
+Browser (React SPA)
+      ↕  REST / JSON
+Spring Boot API  (:8080)
+      ↕  JPA / Hibernate
+PostgreSQL  (:5432)
 ```
 
 ---
 
-## Requisitos de Ambiente
+## Executar localmente
+
+### Pré-requisitos
 - Java 17+
-- Maven 3.6+
-- Node.js 18+ (ou pnpm/yarn equivalente)
-- Docker + Docker Compose (opcional, mas recomendado)
+- Node 20+
+- Docker (opcional, para PostgreSQL local)
 
----
+### Backend (H2 in-memory)
 
-## Variáveis de Ambiente e Proteção de Segredos
-Nenhuma credencial é versionada no repositório. Antes de executar o projeto, crie um arquivo `.env` na raiz e defina somente valores não sensíveis ou placeholders. Exemplo:
-
-```env
-# Banco
-POSTGRES_DB=taskflowdb
-POSTGRES_USER=taskflow
-POSTGRES_PASSWORD=defina_sua_senha_forte
-POSTGRES_PORT=5432
-
-# Aplicação
-SPRING_PROFILES_ACTIVE=production
-JWT_SECRET=troque_por_um_token_hexadecimal
-BACKEND_PORT=8080
-FRONTEND_PORT=5173
-VITE_API_URL=http://backend:8080/api
-```
-
-Diretrizes:
-- Não compartilhe `.env` (adicione ao `.gitignore`).
-- Gere o `JWT_SECRET` com pelo menos 32 bytes.
-- Para desenvolvimento manual, configure `frontend/.env.local` com `VITE_API_URL=http://localhost:8080/api`.
-
----
-
-## Execução Local
-
-### Opção A · Stack completa com Docker
 ```bash
-docker compose up --build
+cd backend
+# crie um .env com JWT_SECRET=qualquer-string-longa
+echo "JWT_SECRET=minha-chave-secreta-muito-segura-123" > .env
+./mvnw spring-boot:run -Dspring.profiles.active=local
+# API disponível em http://localhost:8080
+# Swagger UI: http://localhost:8080/swagger-ui.html
 ```
-- Backend: `http://localhost:${BACKEND_PORT:-8080}`
-- Frontend: `http://localhost:${FRONTEND_PORT:-5173}`
-- PostgreSQL: mapeado para `localhost:${POSTGRES_PORT:-5432}`
 
-### Opção B · Execução manual para testes rápidos
-1. **Backend (perfil local com H2):**
-   ```bash
-   cd backend
-   mvn spring-boot:run "-Dspring-boot.run.profiles=local"
-   ```
-   Porta padrão: `http://localhost:8080`
+### Frontend
 
-2. **Frontend:**
-   ```bash
-   cd frontend
-   npm install
-   npm run dev
-   ```
-   Porta padrão: `http://localhost:5173`
+```bash
+cd frontend
+npm install
+npm run dev
+# App em http://localhost:5173
+```
 
-> O arquivo `backend/src/main/resources/data.sql` popula dados de exemplo apenas no perfil local; mantenha-o desabilitado em produção se não desejar dados padrão.
+### Com Docker Compose (PostgreSQL)
+
+```bash
+docker-compose up -d
+# Backend sobe com perfil de produção apontando para o Postgres do compose
+```
 
 ---
 
-## Documentação e Endpoints
-- Swagger UI local: `http://localhost:8080/swagger-ui.html`
-- Swagger UI produção: `https://<seu-backend>/swagger-ui.html`
-- Coleção de testes da disciplina: `frontend/docs/TESTES_API.md`
+## Variáveis de ambiente (backend)
 
-Endpoints principais:
-- `POST /api/auth/register` · `POST /api/auth/login`
-- `GET/POST/PUT/DELETE /api/customers`
-- `GET/POST/PUT/DELETE /api/products`
-Todas as rotas protegidas exigem `Authorization: Bearer <token>`.
+| Variável | Descrição |
+|----------|-----------|
+| `JWT_SECRET` | Chave secreta HMAC para tokens JWT (mín. 32 chars) |
+| `DB_URL` | JDBC URL do PostgreSQL |
+| `DB_USER` | Usuário do banco |
+| `DB_PASS` | Senha do banco |
 
 ---
 
-## Deploy e Produção
-1. **Backend (Render, Railway, etc.)**
-   - Configure as mesmas variáveis do `.env` no provedor (não copie o arquivo).
-   - Ajuste `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME` e `SPRING_DATASOURCE_PASSWORD` para o Postgres de produção.
-   - Atualize `CORS_ALLOWED_ORIGINS` (caso utilize essa property) com o domínio do frontend.
+## API Documentation
 
-2. **Frontend (Vercel, Netlify…)**
-   - Defina `VITE_API_URL` para o domínio público do backend.
-   - Execute `npm run build` durante o deploy.
+Swagger UI disponível em `/swagger-ui.html` com todos os endpoints documentados.
 
-3. **Docker Compose em produção**
-   - Use um `.env` dedicado no servidor.
-   - Provisione volumes persistentes para `postgres_data`.
-   - Utilize um proxy reverso/HTTPS (Caddy, Nginx, Traefik) para expor o frontend/back-end publicamente.
+Principais grupos:
+- `POST /api/auth/login` — autenticação JWT
+- `GET/POST /api/customers` — CRUD de clientes
+- `GET/POST /api/deals` — CRUD de deals
+- `PUT /api/deals/{id}/stage` — mudança de stage (usado pelo kanban DnD)
+- `GET /api/dashboard/summary` — KPIs do dashboard
+- `GET /api/deals/kanban` — board por stage
 
 ---
 
-## Testes e Qualidade
-- Backend: `cd backend && mvn test`
-- Frontend (build check): `cd frontend && npm run build`
+## Desenvolvedor
 
-Recomenda-se executar os testes após qualquer alteração de modelo ou contrato de API.
+**Eduardo Henrique Sato**
+Análise e Desenvolvimento de Sistemas — Unilavras
 
----
+Especialidades: Java · Spring Boot · React · TypeScript · PostgreSQL · Docker
 
-## Segurança e Boas Práticas
-- Senhas armazenadas com BCrypt.
-- Tokens JWT possuem expiração configurável (24h por padrão).
-- Perfis `local`, `production` e variáveis externas evitam hardcode de credenciais.
-- Nunca faça commit de chaves, senhas ou tokens. Em produção, prefira secret managers (Render Secrets, AWS SSM, etc.).
+[![GitHub](https://img.shields.io/badge/GitHub-esato-181717?logo=github)](https://github.com/esato)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Eduardo%20Sato-0A66C2?logo=linkedin)](https://linkedin.com/in/eduardosato)
 
 ---
 
-## Troubleshooting
-- **Porta em uso**: ajuste `BACKEND_PORT`/`FRONTEND_PORT` no `.env`.
-- **Frontend não acessa a API**: confirme `VITE_API_URL` e as regras de CORS.
-- **Falha no banco**: valide `POSTGRES_*` e se o volume `postgres_data` possui permissões corretas.
-- **Erro de autenticação**: gere um novo token via `/api/auth/login` e verifique expiração.
+## Roadmap
 
----
+- [ ] **Fase 4**: MapStruct, JPA Specifications, Redis Cache, Rate Limiting, Testes com Testcontainers, TanStack Query, Dashboard com dados reais
+- [ ] **Fase 5**: WebSocket real-time, Relatórios PDF/Excel, OAuth2 Google/GitHub, Observabilidade (Prometheus + Grafana), CI/CD GitHub Actions
 
-Projeto desenvolvido para fins acadêmicos. Para dúvidas adicionais, consulte a documentação do Swagger ou o guia `frontend/docs/TESTES_API.md`. Última atualização: novembro/2025.
-
+Ver progresso detalhado em [PROGRESS.md](./PROGRESS.md).

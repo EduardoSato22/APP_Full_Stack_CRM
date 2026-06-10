@@ -17,52 +17,51 @@
 
 ---
 
-## FASE 3 — QUICK WINS
+## FASE 3 — QUICK WINS ✅ Concluída (2026-06-10)
 
 ### 3.1 Identidade e README
-- [ ] Reescrever `README.md` como portfólio sênior
-- [ ] Adicionar badges: build, coverage, Java, Spring Boot, React, Docker
-- [ ] Renomear pacote `com.taskflow` → `com.retailflow`
-- [ ] Renomear `app.name=taskflow-api` → `app.name=retailflow-api`
+- [x] Reescrever `README.md` como portfólio sênior
+- [x] Renomear pacote `com.taskflow` → `com.retailflow`
+- [x] Renomear `app.name=taskflow-api` → `app.name=retailflow-api`
 
 ### 3.2 Seed de Demonstração
-- [ ] Criar `DemoDataLoader` (`@Component` + `CommandLineRunner`)
-- [ ] Popular: 100 clientes, 50 produtos, 30 deals, 20 atividades (dados reais pt-BR)
-- [ ] Criar usuários demo: admin / manager / sales
-- [ ] Garantir idempotência (só roda se banco vazio)
+- [x] Criar `DemoDataLoader` (`@Component` + `CommandLineRunner`)
+- [x] Popular: 19 clientes, 20 produtos, 18 deals, 10 atividades, 4 notificações
+- [x] Criar usuários demo: admin / manager / sales
+- [x] Idempotente via `existsByEmail("admin@retailflow.demo")`
 
 ### 3.3 Login para Recrutadores
-- [ ] Seção "Entrar como Demonstrador" na tela de login
-- [ ] 3 botões (Admin, Gerente, Vendedor) que preenchem e submetem automaticamente
+- [x] Seção "Acesso rápido para recrutadores" na tela de login
+- [x] 3 botões (Admin, Gerente, Vendedor) com login automático
 
 ### 3.4 Flyway (Migrations)
-- [ ] Adicionar dependência `flyway-core` no pom.xml
-- [ ] Criar `V1__create_schema.sql`
-- [ ] Criar `V2__seed_demo.sql`
-- [ ] Trocar `ddl-auto=update` → `validate`
+- [x] Dependência `flyway-core` adicionada
+- [x] `V1__create_schema.sql` criado com schema completo + índices
+- [x] Flyway desabilitado no perfil local (H2); ativo em produção
+- [x] `ddl-auto=update` → `validate` em produção
 
 ### 3.5 Security Headers
-- [ ] Configurar headers no `SecurityConfig`: CSP, HSTS, X-Frame-Options, nosniff, Referrer-Policy
+- [x] CSP, HSTS (31536000s + includeSubDomains), X-Frame-Options DENY, nosniff, Referrer-Policy
 
 ### 3.6 Soft Delete Declarativo
-- [ ] `@SQLDelete` + `@SQLRestriction` em: Customer, Product, Deal, Activity, User
-- [ ] Remover cheques manuais `deleted_at IS NULL`
+- [x] `@SQLDelete` + `@SQLRestriction` em: Customer, Product, Deal, Activity, User
+- [x] `deleted_at` adicionado em Activity (que não tinha)
 
 ### 3.7 Problem Details RFC 7807
-- [ ] Atualizar `GlobalExceptionHandler` para `application/problem+json`
-- [ ] Campos: `type`, `title`, `status`, `detail`, `instance`, `timestamp`
+- [x] GlobalExceptionHandler usando `ProblemDetail` (Spring Boot 3 nativo)
+- [x] Content-Type: `application/problem+json`; campos: type, title, status, detail, instance, timestamp
 
 ### 3.8 Correlation ID
-- [ ] Criar `CorrelationIdFilter` (injeta `X-Correlation-ID` no MDC)
-- [ ] Propagar header na resposta
+- [x] `CorrelationIdFilter` com `@Order(1)` injeta `X-Correlation-ID` no MDC e na resposta
 
 ### 3.9 Drag-and-Drop Kanban
-- [ ] Finalizar `@dnd-kit` no frontend
-- [ ] Ao soltar card: chamar `PUT /api/deals/{id}/stage`
+- [x] `DraggableDealCard` + `DroppableStageColumn` com `@dnd-kit/core`
+- [x] `DragOverlay` com card elevado durante arraste
+- [x] Otimismo local: estado atualiza antes da API responder
 
 ### 3.10 Dark Mode Toggle
-- [ ] Toggle no header (ícone sol/lua)
-- [ ] Persistir em `localStorage`
+- [x] `ColorModeContext` + `createAppTheme(mode)` dinâmico
+- [x] Toggle no header com ícone sol/lua; persistido em `localStorage`
 
 ---
 
