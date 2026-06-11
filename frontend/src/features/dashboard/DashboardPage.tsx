@@ -5,12 +5,12 @@ import {
 } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
 import {
-  AreaChart, Area, XAxis, YAxis, CartesianGrid,
+  AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip as ReTooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend,
 } from 'recharts';
 import { useApi } from '../../contexts/AuthContext';
 import { BRL, STAGE_COLORS, STAGE_LABELS } from '../../constants';
-import type { DashboardData } from '../../types';
+import type { DashboardData, PipelineFunnelStage, RevenueTrendPoint, TopProductPoint } from '../../types';
 import { LoadingCenter } from '../../shared/LoadingCenter';
 
 export function DashboardPage() {
@@ -22,15 +22,32 @@ export function DashboardPage() {
     staleTime: 60_000,
   });
 
+  const { data: revenueTrend } = useQuery({
+    queryKey: ['dashboard-revenue-trend'],
+    queryFn: () => api<RevenueTrendPoint[]>('/api/dashboard/revenue-trend'),
+    staleTime: 60_000,
+  });
+
+  const { data: pipelineFunnel } = useQuery({
+    queryKey: ['dashboard-pipeline-funnel'],
+    queryFn: () => api<PipelineFunnelStage[]>('/api/dashboard/pipeline-funnel'),
+    staleTime: 60_000,
+  });
+
+  const { data: topProducts } = useQuery({
+    queryKey: ['dashboard-top-products'],
+    queryFn: () => api<TopProductPoint[]>('/api/dashboard/top-products'),
+    staleTime: 60_000,
+  });
+
   if (isLoading) return <LoadingCenter />;
   if (isError || !data) return <Alert severity="error">Erro ao carregar dashboard</Alert>;
 
-  const pieData = Object.entries(data.dealsByStage || {})
-    .filter(([, v]) => v > 0)
-    .map(([k, v]) => ({ name: STAGE_LABELS[k] ?? k, value: v, color: STAGE_COLORS[k] }));
+  const revenueData = (revenueTrend ?? []).map(p => ({ month: p.month, value: Number(p.revenue) }));
 
-  const revenueData = Object.entries(data.revenueByMonth || {})
-    .map(([month, value]) => ({ month, value: Number(value) }));
+  const pieData = (pipelineFunnel ?? [])
+    .filter(s => s.count > 0)
+    .map(s => ({ name: STAGE_LABELS[s.stage] ?? s.label, value: s.count, color: STAGE_COLORS[s.stage] }));
 
   return (
     <Stack spacing={3}>
@@ -58,7 +75,7 @@ export function DashboardPage() {
       <Grid container spacing={3}>
         <Grid item xs={12} md={8}>
           <Paper sx={{ p: 3, borderRadius: 3 }}>
-            <Typography variant="h6" mb={2}>Receita por Mês</Typography>
+            <Typography variant="h6" mb={2}>Receita por Mês (12 meses)</Typography>
             <ResponsiveContainer width="100%" height={240}>
               <AreaChart data={revenueData}>
                 <defs>
@@ -68,10 +85,10 @@ export function DashboardPage() {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
-                <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} tickFormatter={v => BRL.format(v)} />
+                <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+                <YAxis tick={{ fontSize: 11 }} tickFormatter={v => BRL.format(v)} />
                 <ReTooltip formatter={(v: number) => BRL.format(v)} />
-                <Area type="monotone" dataKey="value" stroke="#4F46E5" fill="url(#rev)" strokeWidth={2} />
+                <Area type="monotone" dataKey="value" stroke="#4F46E5" fill="url(#rev)" strokeWidth={2} name="Receita" />
               </AreaChart>
             </ResponsiveContainer>
           </Paper>
@@ -89,6 +106,46 @@ export function DashboardPage() {
                     </Pie>
                     <Legend />
                   </PieChart>
+                </ResponsiveContainer>
+              : <Typography color="text.secondary">Sem dados</Typography>
+            }
+          </Paper>
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 3, borderRadius: 3 }}>
+            <Typography variant="h6" mb={2}>Top 5 Produtos (deals ganhos)</Typography>
+            {topProducts && topProducts.length > 0
+              ? <ResponsiveContainer width="100%" height={220}>
+                  <BarChart data={topProducts} layout="vertical" margin={{ left: 8 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+                    <XAxis type="number" tick={{ fontSize: 11 }} allowDecimals={false} />
+                    <YAxis type="category" dataKey="name" width={120} tick={{ fontSize: 11 }} />
+                    <ReTooltip formatter={(v: number) => [`${v} deals`, 'Deals Ganhos']} />
+                    <Bar dataKey="dealCount" fill="#059669" name="Deals Ganhos" radius={[0, 4, 4, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              : <Typography color="text.secondary">Nenhum produto em deals ganhos</Typography>
+            }
+          </Paper>
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 3, borderRadius: 3 }}>
+            <Typography variant="h6" mb={2}>Valor por Estágio</Typography>
+            {pipelineFunnel && pipelineFunnel.some(s => s.count > 0)
+              ? <ResponsiveContainer width="100%" height={220}>
+                  <BarChart data={pipelineFunnel.filter(s => s.count > 0)} margin={{ left: 8 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+                    <XAxis dataKey="label" tick={{ fontSize: 10 }} />
+                    <YAxis tick={{ fontSize: 11 }} tickFormatter={v => BRL.format(v)} />
+                    <ReTooltip formatter={(v: number) => BRL.format(v)} labelFormatter={l => `Estágio: ${l}`} />
+                    <Bar dataKey="value" name="Valor" radius={[4, 4, 0, 0]}>
+                      {pipelineFunnel.filter(s => s.count > 0).map((entry, i) => (
+                        <Cell key={i} fill={STAGE_COLORS[entry.stage] ?? '#64748B'} />
+                      ))}
+                    </Bar>
+                  </BarChart>
                 </ResponsiveContainer>
               : <Typography color="text.secondary">Sem dados</Typography>
             }

@@ -33,9 +33,13 @@ export type DashboardData = {
   activeDeals: number; totalPipelineValue: number;
   wonDealsThisMonth: number; wonRevenueThisMonth: number;
   conversionRate: number; activitiesPendingToday: number;
-  dealsByStage: Record<string, number>;
-  revenueByMonth: Record<string, number>;
 };
+
+export type RevenueTrendPoint = { month: string; revenue: number };
+
+export type PipelineFunnelStage = { stage: string; label: string; count: number; value: number };
+
+export type TopProductPoint = { id: number; name: string; dealCount: number };
 
 export type Notification = {
   id: number; type: string; title: string; message: string;

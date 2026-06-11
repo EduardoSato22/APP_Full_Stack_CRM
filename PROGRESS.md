@@ -1,6 +1,6 @@
 # RetailFlow 2.0 — Progress Tracker
 
-> Última atualização: 2026-06-10 (Fase 4: 4.1–4.9 + 4.11–4.12 concluídos; pendentes: 4.10 Upload)
+> Última atualização: 2026-06-10 (Fase 4: concluída 100%)
 > Branch: main
 
 ---
@@ -11,8 +11,8 @@
 |------|------|--------|
 | Fase 1 | Research | ✅ Concluída |
 | Fase 2 | Planejamento (Roadmap) | ✅ Concluída |
-| Fase 3 | Quick Wins | 🔄 Em andamento |
-| Fase 4 | Medium Improvements | 🔄 Em andamento |
+| Fase 3 | Quick Wins | ✅ Concluída |
+| Fase 4 | Medium Improvements | ✅ Concluída |
 | Fase 5 | Enterprise Features | ⏳ Pendente |
 
 ---
@@ -120,13 +120,20 @@
 - [x] Schemas: customerSchema, productSchema, dealSchema, activitySchema
 - [x] `zodResolver` + `helperText` com mensagens de erro em todos os dialogs
 
-### 4.9 Dashboard com Dados Reais
-- [ ] `GET /api/dashboard/revenue-trend` e `GET /api/dashboard/pipeline-funnel`
-- [ ] Frontend conecta gráficos a dados reais
+### 4.9 Dashboard com Dados Reais ✅ Concluído (2026-06-10)
+- [x] `GET /api/dashboard/revenue-trend` — 12 meses com `sumWonRevenueBetween` (fix bug monotônico)
+- [x] `GET /api/dashboard/pipeline-funnel` — estágios com count + valor
+- [x] `GET /api/dashboard/top-products` — top 5 produtos em deals ganhos
+- [x] `DashboardSummary` limpo: apenas KPIs (removido dealsByStage/revenueByMonth)
+- [x] Frontend: 4 queries separadas, AreaChart 12 meses, PieChart funil, 2 BarCharts novos
 
-### 4.10 Upload de Arquivos
-- [ ] `POST /api/upload` multipart
-- [ ] Componente `ImageUpload` com preview
+### 4.10 Upload de Arquivos ✅ Concluído (2026-06-10)
+- [x] `POST /api/upload` multipart — validação image/*, 5 MB, UUID filename (sem path traversal)
+- [x] `UploadService` com armazenamento local; prod usa `${UPLOAD_DIR}` (filesystem Render é efêmero)
+- [x] `WebConfig` serve `/uploads/**` como recurso estático
+- [x] `SecurityConfig` permite `/uploads/**` sem autenticação
+- [x] Componente `ImageUpload` com preview, drag-and-drop, upload direto (raw fetch, sem Content-Type hardcoded)
+- [x] `CustomerDialog` e `ProductDialog` usam `Controller + ImageUpload` no lugar de URL textual
 
 ### 4.11 GitHub Actions CI ✅ Concluído (2026-06-10)
 - [x] `.github/workflows/ci.yml`: jobs paralelos backend + frontend

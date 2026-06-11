@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import {
   Alert, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle,
-  FormControl, Grid, InputLabel, MenuItem, Select, TextField,
+  FormControl, Grid, InputLabel, MenuItem, Select, TextField, Typography,
 } from '@mui/material';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../../contexts/AuthContext';
 import { customerSchema, type CustomerFormData } from './customerSchema';
+import { ImageUpload } from '../../shared/ImageUpload';
 import type { Customer } from '../../types';
 
 interface Props {
@@ -21,7 +22,7 @@ export function CustomerDialog({ open, customer, onClose }: Props) {
   const queryClient = useQueryClient();
   const [error, setError] = useState('');
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<CustomerFormData>({
+  const { register, handleSubmit, reset, control, formState: { errors } } = useForm<CustomerFormData>({
     resolver: zodResolver(customerSchema),
   });
 
@@ -86,7 +87,16 @@ export function CustomerDialog({ open, customer, onClose }: Props) {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12}><TextField label="URL da Foto" fullWidth {...register('photoUrl')} /></Grid>
+            <Grid item xs={12}>
+              <Typography variant="caption" color="text.secondary" display="block" mb={0.5}>Foto do Cliente</Typography>
+              <Controller
+                name="photoUrl"
+                control={control}
+                render={({ field }) => (
+                  <ImageUpload value={field.value ?? ''} onChange={field.onChange} label="Foto do Cliente" />
+                )}
+              />
+            </Grid>
             <Grid item xs={12}><TextField label="Observações" fullWidth multiline rows={2} {...register('notes')} /></Grid>
           </Grid>
         </DialogContent>

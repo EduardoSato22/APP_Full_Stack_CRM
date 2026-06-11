@@ -3,7 +3,6 @@ package com.retailflow.dto;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.util.Map;
 
 @Data
 public class DashboardSummary {
@@ -15,6 +14,4 @@ public class DashboardSummary {
     private BigDecimal wonRevenueThisMonth;
     private double conversionRate;
     private long activitiesPendingToday;
-    private Map<String, Long> dealsByStage;
-    private Map<String, BigDecimal> revenueByMonth;
 }

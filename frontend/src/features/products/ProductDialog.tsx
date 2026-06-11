@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import {
-  Alert, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField,
+  Alert, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle,
+  Grid, TextField, Typography,
 } from '@mui/material';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../../contexts/AuthContext';
 import { productSchema, type ProductFormData } from './productSchema';
+import { ImageUpload } from '../../shared/ImageUpload';
 import type { Product } from '../../types';
 
 interface Props {
@@ -20,7 +22,7 @@ export function ProductDialog({ open, product, onClose }: Props) {
   const queryClient = useQueryClient();
   const [error, setError] = useState('');
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<ProductFormData>({
+  const { register, handleSubmit, reset, control, formState: { errors } } = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
   });
 
@@ -56,7 +58,16 @@ export function ProductDialog({ open, product, onClose }: Props) {
               <TextField label="Nome *" fullWidth {...register('name')}
                 error={!!errors.name} helperText={errors.name?.message} />
             </Grid>
-            <Grid item xs={12}><TextField label="URL da Imagem" fullWidth {...register('imageUrl')} /></Grid>
+            <Grid item xs={12}>
+              <Typography variant="caption" color="text.secondary" display="block" mb={0.5}>Imagem do Produto</Typography>
+              <Controller
+                name="imageUrl"
+                control={control}
+                render={({ field }) => (
+                  <ImageUpload value={field.value ?? ''} onChange={field.onChange} label="Imagem do Produto" />
+                )}
+              />
+            </Grid>
             <Grid item xs={6}>
               <TextField label="Preço *" fullWidth type="number" inputProps={{ step: '0.01' }} {...register('price')}
                 error={!!errors.price} helperText={errors.price?.message} />
