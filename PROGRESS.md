@@ -253,7 +253,18 @@
   - Nível 1: System Context (usuários, sistema, integrações externas)
   - Nível 2: Container Diagram (SPA, API, PostgreSQL, Redis, Prometheus, Grafana)
   - Nível 3: Component Diagram (Security, Controllers, Services, Mappers, Repos, WS, Email, Export)
-- [ ] 5.13 CI/CD Completo
+### 5.13 CI/CD Completo ✅ Concluído (2026-06-11)
+- [x] `.github/dependabot.yml`: atualização automática Maven + npm + GitHub Actions (weekly/monthly)
+- [x] `.github/workflows/cd.yml`: Docker build → Trivy SARIF scan → push GHCR → deploy Render (webhook)
+  - Docker metadata action: tags por branch, semver, SHA
+  - Trivy CRITICAL/HIGH → GitHub Security Dashboard via SARIF upload
+  - Deploy job com `environment: production` e `if: secrets.RENDER_DEPLOY_HOOK != ''`
+- [x] `.github/workflows/security.yml`: OWASP Dependency Check (failBuildOnCVSS=9) + Trivy FS scan semanal
+- [x] `.github/workflows/release.yml`: semantic-release (minor/patch/major por tipo) + commitlint em PRs
+- [x] `.releaserc.json`: preset conventionalcommits, gera CHANGELOG.md, cria GitHub Release e tag
+- [x] `.commitlintrc.json`: regras de commit convencional (type-enum, subject-max-length)
+- [x] `backend/pom.xml`: OWASP Dependency Check plugin v9.0.9 (não roda no `verify` por default)
+- [x] `backend/.owasp-suppression.xml`: arquivo de supressão de falsos positivos
 
 ---
 

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+    <!--
+        Adicione aqui supressões de CVEs confirmados como falsos positivos.
+        Exemplo:
+        <suppress>
+            <notes>CVE-XXXX-XXXX é falso positivo para este artefato</notes>
+            <cve>CVE-XXXX-XXXX</cve>
+        </suppress>
+    -->
+</suppressions>
