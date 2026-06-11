@@ -176,9 +176,16 @@
 - [x] Frontend: componente `ExportMenu` com dropdown CSV/Excel/PDF
 - [x] Botão "Exportar" adicionado em: CustomersPage, ProductsPage, DealsPage
 
-- [ ] 5.4 Spring Cloud Contract / Pact
-- [ ] 5.4 Spring Cloud Contract / Pact
-- [ ] 5.5 Testes E2E (Playwright)
+- [ ] 5.4 Spring Cloud Contract / Pact (baixa prioridade para portfólio — postergado)
+
+### 5.5 Testes E2E (Playwright) ✅ Concluído (2026-06-11)
+- [x] `@playwright/test` instalado como devDependency
+- [x] `playwright.config.ts`: Chromium, webServer dev, retry em CI
+- [x] `e2e/crm-flow.spec.ts`: login demo, criar cliente, criar deal, dashboard KPIs, export menu
+- [x] Scripts: `test:e2e` e `test:e2e:ui` no package.json
+- [x] CI: job `e2e` no GitHub Actions (runs-on ubuntu, após build, upload report on failure)
+
+- [ ] 5.6 Observabilidade Completa (Prometheus + Grafana + Sentry)
 - [ ] 5.6 Observabilidade Completa (Prometheus + Grafana + Sentry)
 - [ ] 5.7 OAuth2 Social Login (Google + GitHub)
 - [ ] 5.8 Módulo de Vendas (Sale Entity)
