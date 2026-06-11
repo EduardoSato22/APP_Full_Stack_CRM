@@ -167,7 +167,16 @@
 - [x] Variáveis: `MAIL_HOST`, `MAIL_PORT`, `MAIL_USER`, `MAIL_PASS`, `MAIL_FROM`
 - [x] `AuthServiceTest` atualizado com `@Mock EmailService`
 
-- [ ] 5.3 Relatórios e Exports (PDF, Excel, CSV)
+### 5.3 Relatórios e Exports ✅ Concluído (2026-06-11)
+- [x] `poi-ooxml:5.2.5` (Excel) + `pdfbox:2.0.31` (PDF) no pom.xml
+- [x] `ExportService`: CSV puro Java + Excel (POI XSSF) + PDF (PDFBox tabela)
+- [x] `ExportController`: 9 endpoints — `/api/export/{customers,deals,products}.{csv,xlsx,pdf}`
+- [x] PDF: tabela com header colorido, linhas alternadas, rodapé com contagem
+- [x] Excel: filtros habilitados, auto-resize de colunas, header estilizado
+- [x] Frontend: componente `ExportMenu` com dropdown CSV/Excel/PDF
+- [x] Botão "Exportar" adicionado em: CustomersPage, ProductsPage, DealsPage
+
+- [ ] 5.4 Spring Cloud Contract / Pact
 - [ ] 5.4 Spring Cloud Contract / Pact
 - [ ] 5.5 Testes E2E (Playwright)
 - [ ] 5.6 Observabilidade Completa (Prometheus + Grafana + Sentry)

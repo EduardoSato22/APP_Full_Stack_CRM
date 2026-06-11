@@ -10,6 +10,7 @@ import { useApi } from '../../contexts/AuthContext';
 import { BRL } from '../../constants';
 import type { Deal } from '../../types';
 import { LoadingCenter } from '../../shared/LoadingCenter';
+import { ExportMenu } from '../../shared/ExportMenu';
 import { DroppableStageColumn } from './DealColumn';
 import { DealDialog } from './DealDialog';
 
@@ -84,7 +85,10 @@ export function DealsPage() {
           <Typography variant="h4">Pipeline de Vendas</Typography>
           <Typography color="text.secondary">Arraste os cards para mover entre estágios</Typography>
         </Box>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={() => setDialogOpen(true)}>Nova Negociação</Button>
+        <Stack direction="row" spacing={1}>
+          <ExportMenu resource="deals" />
+          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setDialogOpen(true)}>Nova Negociação</Button>
+        </Stack>
       </Stack>
 
       {error && <Alert severity="error" onClose={() => setError('')}>{error}</Alert>}

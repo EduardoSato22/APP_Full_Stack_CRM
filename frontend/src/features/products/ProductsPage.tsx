@@ -13,6 +13,7 @@ import { BRL, fmtDate } from '../../constants';
 import type { Product, Page } from '../../types';
 import { LoadingCenter } from '../../shared/LoadingCenter';
 import { EmptyState } from '../../shared/EmptyState';
+import { ExportMenu } from '../../shared/ExportMenu';
 import { ProductDialog } from './ProductDialog';
 
 export function ProductsPage() {
@@ -46,10 +47,13 @@ export function ProductsPage() {
           <Typography variant="h4">Produtos</Typography>
           <Typography color="text.secondary">{page?.totalElements ?? 0} itens</Typography>
         </Box>
-        <Button variant="contained" startIcon={<AddIcon />}
-          onClick={() => { setEditing(null); setDialogOpen(true); }}>
-          Novo Produto
-        </Button>
+        <Stack direction="row" spacing={1}>
+          <ExportMenu resource="products" />
+          <Button variant="contained" startIcon={<AddIcon />}
+            onClick={() => { setEditing(null); setDialogOpen(true); }}>
+            Novo Produto
+          </Button>
+        </Stack>
       </Stack>
 
       <TextField placeholder="Buscar produto..." value={search}

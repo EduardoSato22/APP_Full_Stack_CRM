@@ -15,6 +15,7 @@ import { BRL, STATUS_COLORS } from '../../constants';
 import type { Customer, Page } from '../../types';
 import { LoadingCenter } from '../../shared/LoadingCenter';
 import { EmptyState } from '../../shared/EmptyState';
+import { ExportMenu } from '../../shared/ExportMenu';
 import { CustomerDialog } from './CustomerDialog';
 
 export function CustomersPage() {
@@ -58,10 +59,13 @@ export function CustomersPage() {
           <Typography variant="h4">Clientes</Typography>
           <Typography color="text.secondary">{page?.totalElements ?? 0} registros</Typography>
         </Box>
-        <Button variant="contained" startIcon={<AddIcon />}
-          onClick={() => { setEditing(null); setDialogOpen(true); }}>
-          Novo Cliente
-        </Button>
+        <Stack direction="row" spacing={1}>
+          <ExportMenu resource="customers" />
+          <Button variant="contained" startIcon={<AddIcon />}
+            onClick={() => { setEditing(null); setDialogOpen(true); }}>
+            Novo Cliente
+          </Button>
+        </Stack>
       </Stack>
 
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
