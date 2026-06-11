@@ -227,8 +227,22 @@
 - [x] `DataExportResponse`: DTO com perfil + auditLogs + exportedAt
 - [x] `AuditLogResponse`: DTO sem oldValue/newValue (dados sensíveis omitidos na resposta)
 - [x] Frontend: `CookieConsentBanner` — banner LGPD com "Aceitar" e "Apenas essenciais", persiste em localStorage
-- [ ] 5.10 Perfil do Desenvolvedor
-- [ ] 5.11 Landing Page Profissional
+### 5.10 Perfil do Desenvolvedor ✅ Concluído (2026-06-11)
+- [x] Rota `/about` com layout elegante em card
+- [x] Avatar "ES", nome, formação (ADS Unilavras), botões GitHub + LinkedIn
+- [x] Seção "Sobre" com descrição profissional contextualizada no projeto
+- [x] Badges de tecnologias com cores temáticas (12 badges)
+- [x] Grid de 6 áreas de expertise (Backend, Frontend, Dados, DevOps, Segurança, Qualidade)
+- [x] Link "Sobre" no menu lateral (AppShell)
+
+### 5.11 Landing Page Profissional ✅ Concluído (2026-06-11)
+- [x] Rota pública `/landing` (acessível sem autenticação)
+- [x] Seção Hero: gradient escuro, título, subtítulo, CTA "Ver Demo" + botão GitHub
+- [x] Seção Features: 6 cards com ícones e descrição de cada funcionalidade
+- [x] Seção Arquitetura: diagrama ASCII em card escuro monospace
+- [x] Seção Stack: 3 colunas (Backend / Frontend / Infra) com chips de tecnologias
+- [x] Seção CTA final: botões "Acessar Demo" e "Sobre o Desenvolvedor"
+- [x] Link "Landing" no menu lateral (AppShell)
 - [ ] 5.12 ADRs e Diagramas C4
 - [ ] 5.13 CI/CD Completo
 

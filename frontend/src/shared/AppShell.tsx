@@ -7,7 +7,8 @@ import {
 import {
   Assignment as ActivityIcon, AttachMoney as MoneyIcon,
   Brightness4 as DarkModeIcon, Brightness7 as LightModeIcon,
-  Dashboard as DashboardIcon, Inventory2 as ProductIcon,
+  Dashboard as DashboardIcon, Info as AboutIcon,
+  Inventory2 as ProductIcon, Language as LandingIcon,
   Logout as LogoutIcon, Menu as MenuIcon,
   Notifications as NotificationsIcon, People as PeopleIcon,
   PointOfSale as SalesIcon, Storefront as StoreIcon,
@@ -26,6 +27,8 @@ const NAV_ITEMS = [
   { label: 'Negociações',  path: '/deals',      icon: <MoneyIcon /> },
   { label: 'Atividades',   path: '/activities', icon: <ActivityIcon /> },
   { label: 'Vendas',       path: '/sales',      icon: <SalesIcon /> },
+  { label: 'Sobre',        path: '/about',      icon: <AboutIcon /> },
+  { label: 'Landing',      path: '/landing',    icon: <LandingIcon /> },
 ];
 
 export function AppShell() {

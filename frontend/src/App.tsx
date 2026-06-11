@@ -17,6 +17,8 @@ import { ProductsPage } from './features/products/ProductsPage';
 import { DealsPage } from './features/deals/DealsPage';
 import { ActivitiesPage } from './features/activities/ActivitiesPage';
 import { SalesPage } from './features/sales/SalesPage';
+import { AboutPage } from './features/about/AboutPage';
+import { LandingPage } from './features/landing/LandingPage';
 
 export default function App() {
   const [mode, setMode] = useState<PaletteMode>(
@@ -63,6 +65,7 @@ export default function App() {
           <BrowserRouter>
             <Routes>
               <Route path="/oauth2/callback" element={<OAuth2CallbackPage />} />
+              <Route path="/landing" element={<LandingPage />} />
               {!user ? (
                 <Route path="*" element={<LoginPage />} />
               ) : (
@@ -73,6 +76,7 @@ export default function App() {
                   <Route path="/deals" element={<DealsPage />} />
                   <Route path="/activities" element={<ActivitiesPage />} />
                   <Route path="/sales" element={<SalesPage />} />
+                  <Route path="/about" element={<AboutPage />} />
                 </Route>
               )}
             </Routes>
