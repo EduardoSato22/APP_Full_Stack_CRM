@@ -1,6 +1,6 @@
 # RetailFlow 2.0 — Progress Tracker
 
-> Última atualização: 2026-06-10 (Fase 4: concluída 100%)
+> Última atualização: 2026-06-11 (Fase 5: em andamento — 5.1 concluído)
 > Branch: main
 
 ---
@@ -13,7 +13,7 @@
 | Fase 2 | Planejamento (Roadmap) | ✅ Concluída |
 | Fase 3 | Quick Wins | ✅ Concluída |
 | Fase 4 | Medium Improvements | ✅ Concluída |
-| Fase 5 | Enterprise Features | ⏳ Pendente |
+| Fase 5 | Enterprise Features | 🔄 Em andamento |
 
 ---
 
@@ -148,7 +148,16 @@
 
 ## FASE 5 — ENTERPRISE FEATURES (detalhes em .specs/roadmap.md)
 
-- [ ] 5.1 WebSocket (Notificações Real-Time)
+### 5.1 WebSocket (Notificações Real-Time) ✅ Concluído (2026-06-11)
+- [x] `spring-boot-starter-websocket` adicionado ao pom.xml
+- [x] `WebSocketConfig`: STOMP + SockJS endpoint `/ws`
+- [x] `NotificationService.create()` publica em `/topic/notifications/{userId}` via `SimpMessagingTemplate`
+- [x] `SecurityConfig`: `/ws/**` permitAll
+- [x] Frontend: `@stomp/stompjs` + `sockjs-client` instalados
+- [x] `useNotifications` hook: conecta via STOMP, recebe notificações em real-time
+- [x] `AppShell`: badge atualiza sem reload via WebSocket
+
+- [ ] 5.2 Email Transacional
 - [ ] 5.2 Email Transacional
 - [ ] 5.3 Relatórios e Exports (PDF, Excel, CSV)
 - [ ] 5.4 Spring Cloud Contract / Pact

@@ -15,6 +15,7 @@ import {
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { ColorModeContext } from '../contexts/ColorModeContext';
 import { useApi, useAuth } from '../contexts/AuthContext';
+import { useNotifications } from './useNotifications';
 import type { Notification } from '../types';
 
 const SIDEBAR_WIDTH = 240;
@@ -27,27 +28,33 @@ const NAV_ITEMS = [
 ];
 
 export function AppShell() {
-  const { user, logout } = useAuth();
+  const { user, token, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [notifAnchor, setNotifAnchor] = useState<null | HTMLElement>(null);
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [notifCount, setNotifCount] = useState(0);
+  const [restCount, setRestCount] = useState(0);
   const api = useApi();
   const muiTheme = useTheme();
   const { toggleColorMode } = useContext(ColorModeContext);
 
+  const { liveNotifications, liveCount, resetCount } = useNotifications(user?.userId, token);
+
+  const notifCount = restCount + liveCount;
+
   useEffect(() => {
     api<{ unread: number }>('/api/notifications/count')
-      .then(d => setNotifCount(d?.unread ?? 0)).catch(() => {});
+      .then(d => setRestCount(d?.unread ?? 0)).catch(() => {});
   }, []);
 
   const openNotifications = async (e: React.MouseEvent<HTMLElement>) => {
     setNotifAnchor(e.currentTarget);
     const data = await api<Notification[]>('/api/notifications').catch(() => []);
-    setNotifications(data ?? []);
-    setNotifCount(0);
+    const merged = [...liveNotifications.filter(ln => !data?.some(d => d.id === ln.id)), ...(data ?? [])];
+    setNotifications(merged);
+    setRestCount(0);
+    resetCount();
   };
 
   const markAllRead = async () => {

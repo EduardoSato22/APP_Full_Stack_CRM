@@ -5,6 +5,7 @@ import com.retailflow.model.Notification;
 import com.retailflow.model.User;
 import com.retailflow.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,7 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final UserService userService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     private User getCurrentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -56,6 +58,8 @@ public class NotificationService {
         n.setTitle(title);
         n.setMessage(message);
         n.setLink(link);
-        notificationRepository.save(n);
+        Notification saved = notificationRepository.save(n);
+        NotificationResponse dto = NotificationResponse.fromEntity(saved);
+        messagingTemplate.convertAndSend("/topic/notifications/" + user.getId(), dto);
     }
 }
