@@ -1,3 +1,9 @@
+## [1.0.1](https://github.com/EduardoSato22/APP_Full_Stack_CRM/compare/v1.0.0...v1.0.1) (2026-06-11)
+
+### Bug Fixes
+
+* **security:** corrige CORS bloqueando preflight ao retornar 401 em vez de redirect para /login ([ca41cae](https://github.com/EduardoSato22/APP_Full_Stack_CRM/commit/ca41cae5360a92a5f3847162491108cf014c6aa1))
+
 ## 1.0.0 (2026-06-11)
 
 ### Features
