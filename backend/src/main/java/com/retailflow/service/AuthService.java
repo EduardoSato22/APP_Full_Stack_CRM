@@ -75,6 +75,18 @@ public class AuthService {
         return buildAuthResponse(user);
     }
 
+    @Transactional
+    public void anonymizeAndDelete(User user) {
+        user.setName("Usuário Removido");
+        user.setEmail("anonymous-" + user.getId() + "@deleted.retailflow.dev");
+        user.setPhone(null);
+        user.setAvatar(null);
+        user.setActive(false);
+        userRepository.save(user);
+        refreshTokenRepository.revokeAllByUserId(user.getId());
+        userRepository.deleteById(user.getId()); // triggers soft delete
+    }
+
     private AuthResponse buildAuthResponse(User user) {
         String accessToken = jwtService.generateToken(user);
         String refreshToken = createRefreshToken(user);

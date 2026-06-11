@@ -218,7 +218,15 @@
 - [x] Frontend: `SalesPage` com tabela, filtro por status, dialog de criação com múltiplos itens
 - [x] Rota `/sales` adicionada em `App.tsx`
 - [x] Link "Vendas" no menu lateral (`AppShell`) com ícone `PointOfSale`
-- [ ] 5.9 LGPD e Compliance
+### 5.9 LGPD e Compliance ✅ Concluído (2026-06-11)
+- [x] `GET /api/me/data-export`: exporta perfil + todos os audit logs do usuário em JSON
+- [x] `DELETE /api/me`: anonimiza dados (nome genérico, email irreversível, phone/avatar null) + soft delete + revoga tokens
+- [x] `AuditLogRepository.findByChangedByIdOrderByChangedAtDesc`: busca logs por usuário
+- [x] `AuditLogService`: `log()` para registrar eventos, `list()` paginado, `findByUser()` para LGPD
+- [x] `AuditLogController`: `GET /api/audit-logs` — admin vê todos, user vê apenas os próprios
+- [x] `DataExportResponse`: DTO com perfil + auditLogs + exportedAt
+- [x] `AuditLogResponse`: DTO sem oldValue/newValue (dados sensíveis omitidos na resposta)
+- [x] Frontend: `CookieConsentBanner` — banner LGPD com "Aceitar" e "Apenas essenciais", persiste em localStorage
 - [ ] 5.10 Perfil do Desenvolvedor
 - [ ] 5.11 Landing Page Profissional
 - [ ] 5.12 ADRs e Diagramas C4

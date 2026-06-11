@@ -10,6 +10,7 @@ import type { AuthUser } from './types';
 import { LoginPage } from './features/auth/LoginPage';
 import { OAuth2CallbackPage } from './features/auth/OAuth2CallbackPage';
 import { AppShell } from './shared/AppShell';
+import { CookieConsentBanner } from './shared/CookieConsentBanner';
 import { DashboardPage } from './features/dashboard/DashboardPage';
 import { CustomersPage } from './features/customers/CustomersPage';
 import { ProductsPage } from './features/products/ProductsPage';
@@ -77,6 +78,7 @@ export default function App() {
             </Routes>
           </BrowserRouter>
         </AuthContext.Provider>
+        <CookieConsentBanner />
       </ThemeProvider>
     </ColorModeContext.Provider>
   );
