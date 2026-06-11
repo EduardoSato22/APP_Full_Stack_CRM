@@ -46,4 +46,10 @@ public class AuthController {
         authService.logout(user.getId());
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/me")
+    @Operation(summary = "Perfil do usuário autenticado")
+    public ResponseEntity<AuthResponse> me(@AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(authService.buildResponse(user));
+    }
 }

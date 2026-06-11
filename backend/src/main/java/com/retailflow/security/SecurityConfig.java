@@ -41,8 +41,12 @@ public class SecurityConfig {
     @Value("${spring.profiles.active:prodution}")
     private String activeProfile;
 
+    @Value("${frontend.url:http://localhost:5173}")
+    private String frontendUrl;
+
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                   OAuth2AuthenticationSuccessHandler oAuth2SuccessHandler) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -58,11 +62,17 @@ public class SecurityConfig {
                                 "/uploads/**",
                                 "/ws/**",
                                 "/actuator/health",
-                                "/actuator/prometheus"
+                                "/actuator/prometheus",
+                                "/oauth2/**",
+                                "/login/oauth2/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
-                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(oAuth2SuccessHandler)
+                        .failureUrl(frontendUrl + "/oauth2/callback?error=auth_failed")
+                )
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .headers(headers -> {

@@ -8,6 +8,7 @@ import type { AuthCtx } from './contexts/AuthContext';
 import { createAppTheme } from './lib/theme';
 import type { AuthUser } from './types';
 import { LoginPage } from './features/auth/LoginPage';
+import { OAuth2CallbackPage } from './features/auth/OAuth2CallbackPage';
 import { AppShell } from './shared/AppShell';
 import { DashboardPage } from './features/dashboard/DashboardPage';
 import { CustomersPage } from './features/customers/CustomersPage';
@@ -57,11 +58,12 @@ export default function App() {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <AuthContext.Provider value={auth}>
-          {!user ? (
-            <LoginPage />
-          ) : (
-            <BrowserRouter>
-              <Routes>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/oauth2/callback" element={<OAuth2CallbackPage />} />
+              {!user ? (
+                <Route path="*" element={<LoginPage />} />
+              ) : (
                 <Route element={<AppShell />}>
                   <Route path="/" element={<DashboardPage />} />
                   <Route path="/customers" element={<CustomersPage />} />
@@ -69,9 +71,9 @@ export default function App() {
                   <Route path="/deals" element={<DealsPage />} />
                   <Route path="/activities" element={<ActivitiesPage />} />
                 </Route>
-              </Routes>
-            </BrowserRouter>
-          )}
+              )}
+            </Routes>
+          </BrowserRouter>
         </AuthContext.Provider>
       </ThemeProvider>
     </ColorModeContext.Provider>

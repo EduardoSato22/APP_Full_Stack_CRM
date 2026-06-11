@@ -194,7 +194,19 @@
 - [x] `observability/prometheus.yml`: scrape a cada 15s em `backend:8080/actuator/prometheus`
 - [x] Grafana auto-provisionado: datasource Prometheus + dashboard RetailFlow Overview
 - [x] Dashboard Grafana: requests/s, latência p99, erros 5xx, HikariCP pool, JVM heap, GC pause
-- [ ] 5.7 OAuth2 Social Login (Google + GitHub)
+### 5.7 OAuth2 Social Login ✅ Concluído (2026-06-11)
+- [x] `spring-boot-starter-oauth2-client` adicionado ao pom.xml
+- [x] `OAuth2AuthenticationSuccessHandler`: find-or-create user por email, emite JWT próprio, redireciona para frontend
+- [x] Google: extrai `email` + `name` + `picture`; GitHub: extrai `email`/`login` + `avatar_url`
+- [x] Usuários OAuth2: senha aleatória (bcrypt de UUID), role padrão USER
+- [x] `SecurityConfig`: oauth2Login configurado com success/failure handler; `/oauth2/**` + `/login/oauth2/**` permitAll
+- [x] Sessão: `IF_REQUIRED` (OAuth2 precisa de session para CSRF state; JWT API continua stateless)
+- [x] Propriedades: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` via env vars
+- [x] `GET /api/auth/me`: retorna perfil do usuário autenticado (usado pelo callback)
+- [x] `AuthService.buildResponse()`: exposição pública do builder para uso no endpoint /me
+- [x] Frontend: `OAuth2CallbackPage` — trata token da URL, busca /me, faz login, redireciona ao dashboard
+- [x] Frontend: botões "Google" + "GitHub" na tela de login com tooltips de configuração
+- [x] `App.tsx`: `BrowserRouter` sempre presente; `/oauth2/callback` acessível sem autenticação
 - [ ] 5.8 Módulo de Vendas (Sale Entity)
 - [ ] 5.9 LGPD e Compliance
 - [ ] 5.10 Perfil do Desenvolvedor

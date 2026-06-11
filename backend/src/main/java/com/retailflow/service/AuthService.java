@@ -71,6 +71,10 @@ public class AuthService {
         refreshTokenRepository.revokeAllByUserId(userId);
     }
 
+    public AuthResponse buildResponse(User user) {
+        return buildAuthResponse(user);
+    }
+
     private AuthResponse buildAuthResponse(User user) {
         String accessToken = jwtService.generateToken(user);
         String refreshToken = createRefreshToken(user);
