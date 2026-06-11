@@ -28,6 +28,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final EmailService emailService;
 
     @Value("${jwt.refresh-expiration-days:7}")
     private int refreshExpirationDays;
@@ -42,6 +43,7 @@ public class AuthService {
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user = userRepository.save(user);
+        emailService.sendWelcome(user);
         return buildAuthResponse(user);
     }
 

@@ -157,8 +157,16 @@
 - [x] `useNotifications` hook: conecta via STOMP, recebe notificações em real-time
 - [x] `AppShell`: badge atualiza sem reload via WebSocket
 
-- [ ] 5.2 Email Transacional
-- [ ] 5.2 Email Transacional
+### 5.2 Email Transacional ✅ Concluído (2026-06-11)
+- [x] `spring-boot-starter-mail` + `spring-boot-starter-thymeleaf` adicionados
+- [x] `EmailService` com `@Async` (não bloqueia o request)
+- [x] Templates HTML: `email/welcome.html`, `email/activity-due.html`
+- [x] `@EnableAsync` em `RetailFlowApiApplication`
+- [x] `AuthService.register()` dispara `sendWelcome` após cadastro
+- [x] Configuração: dev via Mailtrap (env vars), prod via SendGrid/Resend
+- [x] Variáveis: `MAIL_HOST`, `MAIL_PORT`, `MAIL_USER`, `MAIL_PASS`, `MAIL_FROM`
+- [x] `AuthServiceTest` atualizado com `@Mock EmailService`
+
 - [ ] 5.3 Relatórios e Exports (PDF, Excel, CSV)
 - [ ] 5.4 Spring Cloud Contract / Pact
 - [ ] 5.5 Testes E2E (Playwright)

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bem-vindo ao RetailFlow</title>
+  <style>
+    body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; }
+    .container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+    .header { background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%); padding: 40px 32px; text-align: center; }
+    .header h1 { color: #fff; margin: 0; font-size: 28px; font-weight: 700; }
+    .header p { color: rgba(255,255,255,.85); margin: 8px 0 0; font-size: 15px; }
+    .body { padding: 32px; }
+    .body h2 { color: #1a1a2e; margin: 0 0 16px; font-size: 20px; }
+    .body p { color: #555; line-height: 1.6; margin: 0 0 16px; }
+    .btn { display: inline-block; background: #1976d2; color: #fff; text-decoration: none; padding: 12px 28px; border-radius: 8px; font-weight: 600; font-size: 15px; margin: 8px 0 24px; }
+    .feature { display: flex; gap: 12px; margin-bottom: 16px; padding: 16px; background: #f8faff; border-radius: 8px; }
+    .feature-icon { font-size: 24px; flex-shrink: 0; }
+    .feature-text strong { display: block; color: #1a1a2e; margin-bottom: 4px; }
+    .feature-text span { color: #666; font-size: 14px; }
+    .footer { background: #f5f5f5; padding: 24px 32px; text-align: center; color: #999; font-size: 13px; }
+    .footer a { color: #1976d2; text-decoration: none; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>🚀 RetailFlow CRM</h1>
+    <p>Sua plataforma de gestão de vendas</p>
+  </div>
+  <div class="body">
+    <h2>Olá, <span th:text="${name}">Usuário</span>! 👋</h2>
+    <p>Seja bem-vindo ao <strong>RetailFlow CRM</strong>. Sua conta foi criada com sucesso.</p>
+    <p>Aqui está o que você pode fazer agora:</p>
+    <div class="feature">
+      <div class="feature-icon">👥</div>
+      <div class="feature-text">
+        <strong>Gestão de Clientes</strong>
+        <span>Cadastre e acompanhe todos os seus clientes em um só lugar.</span>
+      </div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">💰</div>
+      <div class="feature-text">
+        <strong>Pipeline de Vendas</strong>
+        <span>Visualize e mova negociações pelo kanban em tempo real.</span>
+      </div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">📊</div>
+      <div class="feature-text">
+        <strong>Dashboard com Dados Reais</strong>
+        <span>Acompanhe receita, funil de vendas e produtos mais vendidos.</span>
+      </div>
+    </div>
+    <p style="margin-top: 24px;">
+      Faça login com seu e-mail: <strong th:text="${email}">email@exemplo.com</strong>
+    </p>
+  </div>
+  <div class="footer">
+    <p>RetailFlow CRM — Desenvolvido por Eduardo Sato</p>
+    <p>Você recebeu este e-mail porque criou uma conta no RetailFlow.</p>
+  </div>
+</div>
+</body>
+</html>
