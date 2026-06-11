@@ -207,7 +207,17 @@
 - [x] Frontend: `OAuth2CallbackPage` — trata token da URL, busca /me, faz login, redireciona ao dashboard
 - [x] Frontend: botões "Google" + "GitHub" na tela de login com tooltips de configuração
 - [x] `App.tsx`: `BrowserRouter` sempre presente; `/oauth2/callback` acessível sem autenticação
-- [ ] 5.8 Módulo de Vendas (Sale Entity)
+### 5.8 Módulo de Vendas (Sale Entity) ✅ Concluído (2026-06-11)
+- [x] Entidade `Sale` com `SaleItem` — OneToMany, soft delete via `@SQLDelete`
+- [x] `V4__create_sales.sql`: tabelas `sales` + `sale_items` com índices e FK
+- [x] `SaleRepository`: `findFiltered(status, customerId)`, `sumRevenueBetween(from, to)`
+- [x] `SaleService`: create (calcula total + itens), list, getById, updateStatus, delete
+- [x] `SaleController`: 5 endpoints REST + Swagger tags
+- [x] DTOs: `SaleRequest`, `SaleItemRequest`, `SaleResponse`, `SaleItemResponse`
+- [x] `@CacheEvict("dashboard-summary")` em create/update/delete para invalidar cache
+- [x] Frontend: `SalesPage` com tabela, filtro por status, dialog de criação com múltiplos itens
+- [x] Rota `/sales` adicionada em `App.tsx`
+- [x] Link "Vendas" no menu lateral (`AppShell`) com ícone `PointOfSale`
 - [ ] 5.9 LGPD e Compliance
 - [ ] 5.10 Perfil do Desenvolvedor
 - [ ] 5.11 Landing Page Profissional

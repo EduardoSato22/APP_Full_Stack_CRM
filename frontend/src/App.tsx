@@ -15,6 +15,7 @@ import { CustomersPage } from './features/customers/CustomersPage';
 import { ProductsPage } from './features/products/ProductsPage';
 import { DealsPage } from './features/deals/DealsPage';
 import { ActivitiesPage } from './features/activities/ActivitiesPage';
+import { SalesPage } from './features/sales/SalesPage';
 
 export default function App() {
   const [mode, setMode] = useState<PaletteMode>(
@@ -70,6 +71,7 @@ export default function App() {
                   <Route path="/products" element={<ProductsPage />} />
                   <Route path="/deals" element={<DealsPage />} />
                   <Route path="/activities" element={<ActivitiesPage />} />
+                  <Route path="/sales" element={<SalesPage />} />
                 </Route>
               )}
             </Routes>

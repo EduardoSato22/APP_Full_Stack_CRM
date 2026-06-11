@@ -10,7 +10,7 @@ import {
   Dashboard as DashboardIcon, Inventory2 as ProductIcon,
   Logout as LogoutIcon, Menu as MenuIcon,
   Notifications as NotificationsIcon, People as PeopleIcon,
-  Storefront as StoreIcon,
+  PointOfSale as SalesIcon, Storefront as StoreIcon,
 } from '@mui/icons-material';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { ColorModeContext } from '../contexts/ColorModeContext';
@@ -25,6 +25,7 @@ const NAV_ITEMS = [
   { label: 'Produtos',     path: '/products',   icon: <ProductIcon /> },
   { label: 'Negociações',  path: '/deals',      icon: <MoneyIcon /> },
   { label: 'Atividades',   path: '/activities', icon: <ActivityIcon /> },
+  { label: 'Vendas',       path: '/sales',      icon: <SalesIcon /> },
 ];
 
 export function AppShell() {
