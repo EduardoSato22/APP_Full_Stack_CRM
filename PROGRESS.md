@@ -243,7 +243,16 @@
 - [x] Seção Stack: 3 colunas (Backend / Frontend / Infra) com chips de tecnologias
 - [x] Seção CTA final: botões "Acessar Demo" e "Sobre o Desenvolvedor"
 - [x] Link "Landing" no menu lateral (AppShell)
-- [ ] 5.12 ADRs e Diagramas C4
+### 5.12 ADRs e Diagramas C4 ✅ Concluído (2026-06-11)
+- [x] `.specs/adr/0000-template.md` — template ADR reutilizável
+- [x] `ADR-0001`: JWT Stateless vs Sessões (contexto, justificativa, trade-offs)
+- [x] `ADR-0002`: Flyway para Migrations (comparação com Liquibase e ddl-auto)
+- [x] `ADR-0003`: Monolito Modular vs Microsserviços (decisão justificada para portfólio)
+- [x] `ADR-0004`: MapStruct vs Mapeamento Manual (compile-time vs reflection, Lombok ordering)
+- [x] `.specs/c4-diagrams.md` com 3 níveis C4 em Mermaid (renderiza no GitHub):
+  - Nível 1: System Context (usuários, sistema, integrações externas)
+  - Nível 2: Container Diagram (SPA, API, PostgreSQL, Redis, Prometheus, Grafana)
+  - Nível 3: Component Diagram (Security, Controllers, Services, Mappers, Repos, WS, Email, Export)
 - [ ] 5.13 CI/CD Completo
 
 ---
