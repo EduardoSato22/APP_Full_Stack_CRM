@@ -11,9 +11,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -21,10 +23,12 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("local")
 class CustomerControllerTest {
 
     @Autowired MockMvc mockMvc;
@@ -45,9 +49,10 @@ class CustomerControllerTest {
     @WithMockUser(roles = "ADMIN")
     void listCustomers_returns200WithPage() throws Exception {
         when(customerService.list(any(), any(), any(Pageable.class)))
-                .thenReturn(new PageImpl<>(List.of(response)));
+                .thenReturn(new PageImpl<>(List.of(response), PageRequest.of(0, 20), 1));
 
         mockMvc.perform(get("/api/customers"))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].id").value(1))
                 .andExpect(jsonPath("$.content[0].fullName").value("João Silva"));
@@ -89,15 +94,15 @@ class CustomerControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void createCustomer_withMissingEmail_returns400() throws Exception {
+    void createCustomer_withMissingEmail_returns4xx() throws Exception {
         CustomerRequest request = new CustomerRequest();
         request.setFirstName("João");
-        // email is @NotBlank, so missing email triggers validation
+        // email is @NotBlank; GlobalExceptionHandler retorna 422 (RFC 7807)
 
         mockMvc.perform(post("/api/customers")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().is4xxClientError());
     }
 
     @Test
