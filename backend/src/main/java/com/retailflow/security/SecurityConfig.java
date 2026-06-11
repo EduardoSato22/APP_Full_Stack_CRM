@@ -56,7 +56,9 @@ public class SecurityConfig {
                                 "/api-docs/**",
                                 "/h2-console/**",
                                 "/uploads/**",
-                                "/ws/**"
+                                "/ws/**",
+                                "/actuator/health",
+                                "/actuator/prometheus"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

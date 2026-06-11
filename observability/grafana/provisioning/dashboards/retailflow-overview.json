@@ -1,0 +1,95 @@
+{
+  "title": "RetailFlow — Overview",
+  "uid": "retailflow-overview",
+  "tags": ["retailflow", "spring-boot"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "refresh": "30s",
+  "time": { "from": "now-1h", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "title": "HTTP Requests/s",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{application=\"retailflow-api\"}[1m])) by (uri, method, status)",
+          "legendFormat": "{{method}} {{uri}} ({{status}})"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "HTTP Latency p99 (ms)",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{application=\"retailflow-api\"}[5m])) by (le, uri)) * 1000",
+          "legendFormat": "p99 {{uri}}"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "5xx Errors/s",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{application=\"retailflow-api\",status=~\"5..\"}[1m]))",
+          "legendFormat": "5xx errors/s"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "HikariCP Connection Pool",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "hikaricp_connections_active{application=\"retailflow-api\"}",
+          "legendFormat": "active"
+        },
+        {
+          "expr": "hikaricp_connections_idle{application=\"retailflow-api\"}",
+          "legendFormat": "idle"
+        },
+        {
+          "expr": "hikaricp_connections_pending{application=\"retailflow-api\"}",
+          "legendFormat": "pending"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "JVM Heap Used (MB)",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 16, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "jvm_memory_used_bytes{application=\"retailflow-api\",area=\"heap\"} / 1024 / 1024",
+          "legendFormat": "heap used (MB)"
+        },
+        {
+          "expr": "jvm_memory_max_bytes{application=\"retailflow-api\",area=\"heap\"} / 1024 / 1024",
+          "legendFormat": "heap max (MB)"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "JVM GC Pause (ms/s)",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 16, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "sum(rate(jvm_gc_pause_seconds_sum{application=\"retailflow-api\"}[1m])) * 1000",
+          "legendFormat": "GC pause ms/s"
+        }
+      ]
+    }
+  ]
+}

@@ -185,8 +185,15 @@
 - [x] Scripts: `test:e2e` e `test:e2e:ui` no package.json
 - [x] CI: job `e2e` no GitHub Actions (runs-on ubuntu, após build, upload report on failure)
 
-- [ ] 5.6 Observabilidade Completa (Prometheus + Grafana + Sentry)
-- [ ] 5.6 Observabilidade Completa (Prometheus + Grafana + Sentry)
+### 5.6 Observabilidade Completa ✅ Concluído (2026-06-11)
+- [x] `spring-boot-starter-actuator` + `micrometer-registry-prometheus` no pom.xml
+- [x] Endpoints expostos: `health`, `info`, `prometheus`, `metrics`
+- [x] `SecurityConfig`: `/actuator/health` + `/actuator/prometheus` permitAll
+- [x] `management.metrics.distribution.percentiles-histogram.http.server.requests=true` (habilita p99)
+- [x] `docker-compose.yml`: serviços `prometheus` (v2.51.2) + `grafana` (v10.4.2)
+- [x] `observability/prometheus.yml`: scrape a cada 15s em `backend:8080/actuator/prometheus`
+- [x] Grafana auto-provisionado: datasource Prometheus + dashboard RetailFlow Overview
+- [x] Dashboard Grafana: requests/s, latência p99, erros 5xx, HikariCP pool, JVM heap, GC pause
 - [ ] 5.7 OAuth2 Social Login (Google + GitHub)
 - [ ] 5.8 Módulo de Vendas (Sale Entity)
 - [ ] 5.9 LGPD e Compliance
