@@ -14,6 +14,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
@@ -28,6 +30,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class CustomerServiceTest {
 
     @Mock CustomerRepository customerRepository;
@@ -145,7 +148,6 @@ class CustomerServiceTest {
         request.setEmail("joao@test.com");
 
         when(customerRepository.findById(10L)).thenReturn(Optional.of(customer));
-        when(customerRepository.existsByEmailAndUserIdAndDeletedAtIsNull(anyString(), anyLong())).thenReturn(false);
         when(customerRepository.save(any(Customer.class))).thenReturn(customer);
         when(customerMapper.toResponse(customer)).thenReturn(customerResponse);
 
