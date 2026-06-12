@@ -1,3 +1,9 @@
+## [1.0.7](https://github.com/EduardoSato22/APP_Full_Stack_CRM/compare/v1.0.6...v1.0.7) (2026-06-12)
+
+### Bug Fixes
+
+* **ci:** corrige OAuth2 em testes, E2E com mock de API e remove tooltip ([2dade24](https://github.com/EduardoSato22/APP_Full_Stack_CRM/commit/2dade242a0b014ee7aa50732904d22ada6a342ad))
+
 ## [1.0.6](https://github.com/EduardoSato22/APP_Full_Stack_CRM/compare/v1.0.5...v1.0.6) (2026-06-12)
 
 ### Bug Fixes
