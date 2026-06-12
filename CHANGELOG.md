@@ -1,3 +1,9 @@
+## [1.0.3](https://github.com/EduardoSato22/APP_Full_Stack_CRM/compare/v1.0.2...v1.0.3) (2026-06-12)
+
+### Bug Fixes
+
+* **ci:** corrige referência de imagem no Trivy scan do CD pipeline ([a5fd96a](https://github.com/EduardoSato22/APP_Full_Stack_CRM/commit/a5fd96acf4a3cbe80ee446ac70eef891a862513d))
+
 ## [1.0.2](https://github.com/EduardoSato22/APP_Full_Stack_CRM/compare/v1.0.1...v1.0.2) (2026-06-12)
 
 ### Bug Fixes
