@@ -58,7 +58,9 @@ jobs:
           context: ./backend
           push: false
           load: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: |
+            ${{ steps.meta.outputs.tags }}
+            backend:scan
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -66,7 +68,7 @@ jobs:
       - name: Trivy vulnerability scan
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ghcr.io/${{ github.repository }}/backend:sha-${{ github.sha }}
+          image-ref: backend:scan
           format: sarif
           output: trivy-results.sarif
           severity: CRITICAL,HIGH
