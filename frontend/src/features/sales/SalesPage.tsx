@@ -9,7 +9,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../../contexts/AuthContext';
 import { BRL, fmtDate } from '../../constants';
 
-interface SaleItem { productId: number; quantity: number; }
 interface SaleItemResponse { id: number; productId: number; productName: string; quantity: number; unitPrice: number; subtotal: number; }
 interface Sale { id: number; customerId: number; customerName: string; status: string; total: number; saleDate: string; notes?: string; items: SaleItemResponse[]; }
 interface Customer { id: number; firstName: string; lastName: string; }
