@@ -1,3 +1,9 @@
+## [1.0.5](https://github.com/EduardoSato22/APP_Full_Stack_CRM/compare/v1.0.4...v1.0.5) (2026-06-12)
+
+### Bug Fixes
+
+* **ci:** corrige erros de compilação TS/Java e atualiza actions Node.js 24 ([5d91f87](https://github.com/EduardoSato22/APP_Full_Stack_CRM/commit/5d91f8777414996a68b05c27c59662f2ab77d319))
+
 ## [1.0.4](https://github.com/EduardoSato22/APP_Full_Stack_CRM/compare/v1.0.3...v1.0.4) (2026-06-12)
 
 ### Bug Fixes
