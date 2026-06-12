@@ -1,3 +1,9 @@
+## [1.0.4](https://github.com/EduardoSato22/APP_Full_Stack_CRM/compare/v1.0.3...v1.0.4) (2026-06-12)
+
+### Bug Fixes
+
+* **ci:** atualiza actions para Node.js 24 e corrige permissões do Trivy ([f4cc117](https://github.com/EduardoSato22/APP_Full_Stack_CRM/commit/f4cc11766b7e7e17ecdc683bed2c7eb07b5a06ab))
+
 ## [1.0.3](https://github.com/EduardoSato22/APP_Full_Stack_CRM/compare/v1.0.2...v1.0.3) (2026-06-12)
 
 ### Bug Fixes
