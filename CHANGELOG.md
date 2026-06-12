@@ -1,3 +1,9 @@
+## [1.0.6](https://github.com/EduardoSato22/APP_Full_Stack_CRM/compare/v1.0.5...v1.0.6) (2026-06-12)
+
+### Bug Fixes
+
+* **ci:** corrige E2E sem servidor, Redis no contexto de teste e Trivy instável ([a82ed58](https://github.com/EduardoSato22/APP_Full_Stack_CRM/commit/a82ed5843e7fefde230e68de805292a58181c92c))
+
 ## [1.0.5](https://github.com/EduardoSato22/APP_Full_Stack_CRM/compare/v1.0.4...v1.0.5) (2026-06-12)
 
 ### Bug Fixes
