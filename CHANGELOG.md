@@ -1,3 +1,9 @@
+## [1.0.10](https://github.com/EduardoSato22/APP_Full_Stack_CRM/compare/v1.0.9...v1.0.10) (2026-06-13)
+
+### Bug Fixes
+
+* **security:** adiciona /error ao permitAll e corrige pool HikariCP ([e5a0ba7](https://github.com/EduardoSato22/APP_Full_Stack_CRM/commit/e5a0ba7a701d1a40b07eb7f107389e7069868e89))
+
 ## [1.0.9](https://github.com/EduardoSato22/APP_Full_Stack_CRM/compare/v1.0.8...v1.0.9) (2026-06-13)
 
 ### Bug Fixes
