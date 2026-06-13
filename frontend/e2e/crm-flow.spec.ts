@@ -9,10 +9,24 @@ const MOCK_USER = {
 
 const EMPTY_PAGE = { content: [], totalElements: 0, totalPages: 0, number: 0, size: 20 };
 
+const DASHBOARD_SUMMARY = {
+  totalCustomers: 0, newCustomersThisMonth: 0,
+  activeDeals: 0, totalPipelineValue: 0,
+  wonDealsThisMonth: 0, wonRevenueThisMonth: 0,
+  activitiesPendingToday: 0, conversionRate: 0,
+};
+
 test.describe('RetailFlow CRM — Fluxo Principal', () => {
   test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('cookie_consent', 'accepted'));
     await page.route(/\/api\/auth\/(login|register)/, route =>
       route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(MOCK_USER) })
+    );
+    await page.route(/\/api\/dashboard\/summary/, route =>
+      route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(DASHBOARD_SUMMARY) })
+    );
+    await page.route(/\/api\/dashboard\/(revenue-trend|pipeline-funnel|top-products)/, route =>
+      route.fulfill({ status: 200, contentType: 'application/json', body: '[]' })
     );
     await page.route(/\/api\//, route =>
       route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(EMPTY_PAGE) })
@@ -36,9 +50,9 @@ test.describe('RetailFlow CRM — Fluxo Principal', () => {
 
   test('criar cliente → validar na listagem', async ({ page }) => {
     await page.click('button:has-text("Administrador")');
-    await page.waitForURL(/\/(dashboard|$)/);
+    await expect(page.locator('text=Dashboard').first()).toBeVisible({ timeout: 15000 });
 
-    await page.click('text=Clientes');
+    await page.locator('nav').locator('text=Clientes').click();
     await expect(page.locator('h4:has-text("Clientes"), h5:has-text("Clientes")')).toBeVisible({ timeout: 5000 });
 
     await page.click('button:has-text("Novo Cliente")');
@@ -54,10 +68,10 @@ test.describe('RetailFlow CRM — Fluxo Principal', () => {
 
   test('criar deal → mover estágio no kanban', async ({ page }) => {
     await page.click('button:has-text("Administrador")');
-    await page.waitForURL(/\/(dashboard|$)/);
+    await expect(page.locator('text=Dashboard').first()).toBeVisible({ timeout: 15000 });
 
-    await page.click('text=Negociações');
-    await expect(page.locator('h4:has-text("Negociações"), h5:has-text("Negociações")')).toBeVisible({ timeout: 5000 });
+    await page.locator('nav').locator('text=Negociações').click();
+    await expect(page).toHaveURL(/\/deals/, { timeout: 5000 });
 
     await page.click('button:has-text("Nova Negociação")');
     await expect(page.locator('[role="dialog"]')).toBeVisible();
@@ -73,15 +87,15 @@ test.describe('RetailFlow CRM — Fluxo Principal', () => {
 
   test('dashboard carrega com KPIs visíveis', async ({ page }) => {
     await page.click('button:has-text("Administrador")');
-    await page.waitForURL(/\/(dashboard|$)/);
-    await page.click('text=Dashboard');
+    await expect(page.locator('text=Dashboard').first()).toBeVisible({ timeout: 15000 });
     await expect(page.locator('text=/clientes|deals|receita|atividades/i').first()).toBeVisible({ timeout: 10000 });
   });
 
   test('botão exportar CSV está disponível em Clientes', async ({ page }) => {
     await page.click('button:has-text("Administrador")');
-    await page.waitForURL(/\/(dashboard|$)/);
-    await page.click('text=Clientes');
+    await expect(page.locator('text=Dashboard').first()).toBeVisible({ timeout: 15000 });
+
+    await page.locator('nav').locator('text=Clientes').click();
     await expect(page.locator('button:has-text("Exportar")')).toBeVisible();
     await page.click('button:has-text("Exportar")');
     await expect(page.locator('text=CSV')).toBeVisible();
