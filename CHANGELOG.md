@@ -1,3 +1,10 @@
+## [1.0.8](https://github.com/EduardoSato22/APP_Full_Stack_CRM/compare/v1.0.7...v1.0.8) (2026-06-13)
+
+### Bug Fixes
+
+* **e2e:** corrige testes E2E usando production build e espera estável do AppShell ([afbee4b](https://github.com/EduardoSato22/APP_Full_Stack_CRM/commit/afbee4b07a5eaacb53690d1bf50a1d4f48e625fb))
+* **frontend:** remove keepMounted do Drawer e adiciona polyfill global para SockJS ([d008846](https://github.com/EduardoSato22/APP_Full_Stack_CRM/commit/d008846f910aabe0e507b81f02b357b5a8fc5827))
+
 ## [1.0.7](https://github.com/EduardoSato22/APP_Full_Stack_CRM/compare/v1.0.6...v1.0.7) (2026-06-12)
 
 ### Bug Fixes
