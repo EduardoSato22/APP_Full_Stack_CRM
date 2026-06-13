@@ -79,9 +79,9 @@ public class GlobalExceptionHandler {
     }
 
     private HttpStatus resolveStatus(String message) {
-        if (message == null) return HttpStatus.BAD_REQUEST;
+        if (message == null) return HttpStatus.INTERNAL_SERVER_ERROR;
         if (message.contains("não encontrado")) return HttpStatus.NOT_FOUND;
         if (message.contains("negado")) return HttpStatus.FORBIDDEN;
-        return HttpStatus.BAD_REQUEST;
+        return HttpStatus.INTERNAL_SERVER_ERROR;
     }
 }
