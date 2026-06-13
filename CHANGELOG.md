@@ -1,3 +1,9 @@
+## [1.0.11](https://github.com/EduardoSato22/APP_Full_Stack_CRM/compare/v1.0.10...v1.0.11) (2026-06-13)
+
+### Bug Fixes
+
+* **backend:** corrige 400 no dashboard causado por Redis indisponível ([1fa916e](https://github.com/EduardoSato22/APP_Full_Stack_CRM/commit/1fa916e0f5d3ae49a688d180e8101b4b23a88844))
+
 ## [1.0.10](https://github.com/EduardoSato22/APP_Full_Stack_CRM/compare/v1.0.9...v1.0.10) (2026-06-13)
 
 ### Bug Fixes
