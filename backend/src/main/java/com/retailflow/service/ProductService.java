@@ -33,6 +33,7 @@ public class ProductService {
         return (User) userService.loadUserByUsername(email);
     }
 
+    @Transactional(readOnly = true)
     public Page<ProductResponse> list(String search, Product.Status status, Long categoryId, Pageable pageable) {
         Specification<Product> spec = ProductSpec.hasUserId(getCurrentUser().getId())
                 .and(ProductSpec.hasSearch(search))
@@ -50,6 +51,7 @@ public class ProductService {
         return productMapper.toResponse(productRepository.save(product));
     }
 
+    @Transactional(readOnly = true)
     public ProductResponse findById(Long id) {
         return productMapper.toResponse(findOwned(id));
     }
@@ -78,6 +80,7 @@ public class ProductService {
         return productMapper.toResponse(productRepository.save(product));
     }
 
+    @Transactional(readOnly = true)
     public List<ProductResponse> getLowStock(int threshold) {
         return productRepository
                 .findAllByUserIdAndDeletedAtIsNullAndStockLessThanEqual(getCurrentUser().getId(), threshold)

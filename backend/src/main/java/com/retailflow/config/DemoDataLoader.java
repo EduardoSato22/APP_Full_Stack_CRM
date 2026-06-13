@@ -42,21 +42,60 @@ public class DemoDataLoader implements CommandLineRunner {
         User manager = createUser("Carlos Gerente",    "manager@retailflow.demo", "Manager123", Role.MANAGER);
         User sales   = createUser("Julia Vendas",      "sales@retailflow.demo",   "Sales123",   Role.USER);
 
-        ProductCategory elec = createCategory("Eletrônicos", "#3B82F6", admin);
-        ProductCategory peri = createCategory("Periféricos",  "#8B5CF6", admin);
-        ProductCategory soft = createCategory("Software",     "#10B981", admin);
-        ProductCategory serv = createCategory("Serviços",     "#F59E0B", admin);
+        ProductCategory soft = createCategory("Software & Licenças",  "#3B82F6", admin);
+        ProductCategory infr = createCategory("Infraestrutura",       "#8B5CF6", admin);
+        ProductCategory serv = createCategory("Serviços & Suporte",   "#10B981", admin);
+        ProductCategory hard = createCategory("Hardware Corporativo",  "#F59E0B", admin);
 
-        Product nb1  = createProduct("Notebook Pro 14\"",       "Ultrabook 16GB RAM, 512GB SSD, Intel i7",    new BigDecimal("8999.90"),  new BigDecimal("6200.00"), "NB-PRO-14",  25, Product.Unit.UNIT, elec, admin);
-        Product nb2  = createProduct("Notebook Gamer RTX",      "GPU RTX 4070, 32GB RAM, 1TB NVMe",          new BigDecimal("12999.00"), new BigDecimal("9100.00"), "NB-GAM-RTX", 12, Product.Unit.UNIT, elec, admin);
-        Product mon  = createProduct("Monitor 4K 27\"",          "IPS, 144Hz, HDR400, USB-C",                new BigDecimal("3499.90"),  new BigDecimal("2100.00"), "MON-4K-27",  18, Product.Unit.UNIT, elec, admin);
-        Product tec  = createProduct("Teclado Mecânico RGB",    "Switch Blue, ABNT2, retroiluminado",        new BigDecimal("599.90"),   new BigDecimal("320.00"),  "TEC-MEC-RGB",40, Product.Unit.UNIT, peri, admin);
-        Product mou  = createProduct("Mouse Gamer 16000DPI",    "Sensor óptico, 8 botões, RGB",              new BigDecimal("349.90"),   new BigDecimal("180.00"),  "MOU-GAM-16K",55, Product.Unit.UNIT, peri, admin);
-        Product head = createProduct("Headset 7.1 Surround",    "USB, mic retrátil, drivers 50mm",           new BigDecimal("499.90"),   new BigDecimal("280.00"),  "HEAD-71",    22, Product.Unit.UNIT, peri, admin);
-        Product ssd  = createProduct("SSD NVMe 1TB",            "PCIe 4.0, leitura 7000MB/s",               new BigDecimal("699.90"),   new BigDecimal("420.00"),  "SSD-NVM-1TB",45, Product.Unit.UNIT, elec, admin);
-        Product lic  = createProduct("Licença Office 365",      "Anual, 5 dispositivos, 1TB OneDrive",       new BigDecimal("599.00"),   new BigDecimal("350.00"),  "LIC-O365",    0, Product.Unit.UNIT, soft, admin);
-        Product inst = createProduct("Instalação e Config TI",  "Setup completo de workstation + config",    new BigDecimal("450.00"),   new BigDecimal("100.00"),  "SVC-INS-TI",  0, Product.Unit.SERVICE, serv, admin);
-        Product ssd2 = createProduct("Hub USB-C 10 portas",     "HDMI 4K, 100W PD, SD, USB 3.2",            new BigDecimal("389.90"),   new BigDecimal("220.00"),  "HUB-USC-10P",35, Product.Unit.UNIT, peri, admin);
+        // Software — margens altas, estoque "infinito" para licenças
+        createProduct("CRM RetailFlow Enterprise",
+                "Licença anual — até 50 usuários, API REST, relatórios customizáveis, SLA 99,9% e suporte dedicado",
+                new BigDecimal("12000.00"), new BigDecimal("4200.00"), "SW-CRM-ENT",  999, Product.Unit.UNIT,    Product.Status.ACTIVE,       soft, admin);
+        createProduct("ERP Financeiro — Módulo Completo",
+                "Contas a pagar/receber, DRE automático, conciliação bancária e integração contábil via SPED",
+                new BigDecimal("8500.00"),  new BigDecimal("3000.00"), "SW-ERP-FIN",  999, Product.Unit.UNIT,    Product.Status.ACTIVE,       soft, admin);
+        createProduct("Plataforma BI & Analytics",
+                "Dashboards em tempo real, relatórios agendados, conectores SQL/REST/Sheets e drill-down interativo",
+                new BigDecimal("6000.00"),  new BigDecimal("1800.00"), "SW-BI-ANA",   999, Product.Unit.UNIT,    Product.Status.ACTIVE,       soft, admin);
+        createProduct("Antivírus Corporativo — 100 seats",
+                "Proteção endpoint, EDR, firewall DNS, console centralizado — fora de linha, substituído por nova versão",
+                new BigDecimal("3600.00"),  new BigDecimal("1400.00"), "SW-AV-100",     0, Product.Unit.UNIT,    Product.Status.INACTIVE,     soft, admin);
+
+        // Infraestrutura — margens menores, estoque físico limitado
+        createProduct("Servidor Dell PowerEdge R540",
+                "Xeon Silver 4214R, 64 GB ECC RAM, 2× 1,2 TB SAS RAID 1, PSU redundante 750 W, iDRAC 9",
+                new BigDecimal("18900.00"), new BigDecimal("13200.00"), "HW-SRV-R540",  5, Product.Unit.UNIT,    Product.Status.ACTIVE,       infr, admin);
+        createProduct("Switch Gerenciável 48P PoE+",
+                "48× Gigabit PoE+ (740 W total), 4× SFP+ 10G uplink, VLAN 802.1Q, QoS, gestão web e CLI",
+                new BigDecimal("4200.00"),  new BigDecimal("2600.00"), "HW-SW-48P",    12, Product.Unit.UNIT,    Product.Status.ACTIVE,       infr, admin);
+        createProduct("Firewall UTM Next-Gen 1 Gbps",
+                "IPS/IDS com assinaturas diárias, VPN SSL e IPsec, filtragem de URL por categoria e sandbox cloud",
+                new BigDecimal("6800.00"),  new BigDecimal("4100.00"), "HW-FW-UTM1G",   8, Product.Unit.UNIT,    Product.Status.ACTIVE,       infr, admin);
+        createProduct("Storage NAS Empresarial 40 TB",
+                "NAS 12 baias RAID 6, replicação offsite, deduplicação e snapshot agendado — geração anterior descontinuada",
+                new BigDecimal("9200.00"),  new BigDecimal("6500.00"), "HW-NAS-40T",    0, Product.Unit.UNIT,    Product.Status.DISCONTINUED, infr, admin);
+
+        // Serviços — unidade SERVICE, estoque zero é padrão
+        createProduct("Implantação CRM — Pacote 60 h",
+                "Levantamento de requisitos, configuração, migração de dados legados, testes e treinamento go-live",
+                new BigDecimal("9000.00"),  new BigDecimal("2700.00"), "SVC-IMPL-60H",  0, Product.Unit.SERVICE, Product.Status.ACTIVE,       serv, admin);
+        createProduct("Contrato de Suporte Anual",
+                "SLA 4 h para críticos, atendimento 8×5, atualizações incluídas e gerente de conta dedicado",
+                new BigDecimal("4800.00"),  new BigDecimal("1200.00"), "SVC-SUP-ANUAL", 0, Product.Unit.SERVICE, Product.Status.ACTIVE,       serv, admin);
+        createProduct("Treinamento Usuário Final — turma 10",
+                "Capacitação presencial ou remota (8 h), material didático em PDF e certificado de conclusão",
+                new BigDecimal("2400.00"),  new BigDecimal("600.00"),  "SVC-TRN-10",    0, Product.Unit.SERVICE, Product.Status.ACTIVE,       serv, admin);
+
+        // Hardware — margem intermediária, estoque físico
+        createProduct("Workstation Dell Precision 3660",
+                "Intel Core i9-13900K, 32 GB DDR5, NVIDIA RTX A2000 12 GB, 1 TB NVMe — CAD e renderização",
+                new BigDecimal("11200.00"), new BigDecimal("7800.00"), "HW-WS-P3660",   7, Product.Unit.UNIT,    Product.Status.ACTIVE,       hard, admin);
+        createProduct("Notebook Lenovo ThinkPad X1 Carbon Gen 11",
+                "Intel Core i7-1365U, 16 GB LPDDR5, 512 GB NVMe, tela 14\" 2,8K OLED — ultra portátil corporativo",
+                new BigDecimal("9800.00"),  new BigDecimal("6900.00"), "HW-NB-X1C11",  15, Product.Unit.UNIT,    Product.Status.ACTIVE,       hard, admin);
+        createProduct("Monitor Profissional 32\" 4K IPS",
+                "HDR 600, Delta E < 2, USB-C 90 W, KVM integrado, cobertura sRGB 99%, altura e rotação ajustáveis",
+                new BigDecimal("3800.00"),  new BigDecimal("2400.00"), "HW-MON-32K",   20, Product.Unit.UNIT,    Product.Status.ACTIVE,       hard, admin);
 
         Customer ana     = createCustomer("Ana",      "Silva",       "ana.silva@techcorp.com.br",       "(11) 99801-2345", "TechCorp Ltda",        "Diretora de TI",       Customer.Status.ACTIVE,   Customer.Source.REFERRAL,     new BigDecimal("85000.00"),  admin, 90);
         Customer bruno   = createCustomer("Bruno",    "Almeida",     "bruno.almeida@startup.io",        "(21) 98712-3456", "Startup Inovação S/A", "CTO",                  Customer.Status.ACTIVE,   Customer.Source.ORGANIC,      new BigDecimal("42000.00"),  admin, 75);
@@ -133,7 +172,7 @@ public class DemoDataLoader implements CommandLineRunner {
     }
 
     private Product createProduct(String name, String desc, BigDecimal price, BigDecimal cost,
-            String sku, int stock, Product.Unit unit, ProductCategory cat, User owner) {
+            String sku, int stock, Product.Unit unit, Product.Status status, ProductCategory cat, User owner) {
         Product p = new Product();
         p.setName(name);
         p.setDescription(desc);
@@ -142,7 +181,7 @@ public class DemoDataLoader implements CommandLineRunner {
         p.setSku(sku);
         p.setStock(stock);
         p.setUnit(unit);
-        p.setStatus(Product.Status.ACTIVE);
+        p.setStatus(status);
         p.setCategory(cat);
         p.setUser(owner);
         return productRepository.save(p);
