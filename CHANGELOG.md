@@ -1,3 +1,9 @@
+## [1.0.9](https://github.com/EduardoSato22/APP_Full_Stack_CRM/compare/v1.0.8...v1.0.9) (2026-06-13)
+
+### Bug Fixes
+
+* **e2e:** navega via page.goto() no lugar de clicar itens de nav ([077fa26](https://github.com/EduardoSato22/APP_Full_Stack_CRM/commit/077fa263fc01b555fc85be2fd82a47175909c0e2))
+
 ## [1.0.8](https://github.com/EduardoSato22/APP_Full_Stack_CRM/compare/v1.0.7...v1.0.8) (2026-06-13)
 
 ### Bug Fixes
