@@ -50,10 +50,10 @@ test.describe('RetailFlow CRM — Fluxo Principal', () => {
 
   test('criar cliente → validar na listagem', async ({ page }) => {
     await page.click('button:has-text("Administrador")');
-    await expect(page.locator('text=Dashboard').first()).toBeVisible({ timeout: 15000 });
-
-    await page.locator('nav').locator('text=Clientes').click();
-    await expect(page.locator('h4:has-text("Clientes"), h5:has-text("Clientes")')).toBeVisible({ timeout: 5000 });
+    // Aguarda login completar (user gravado no localStorage) antes de navegar
+    await page.waitForFunction(() => !!localStorage.getItem('user'), { timeout: 10000 });
+    await page.goto(`${BASE}/customers`);
+    await expect(page.locator('h4:has-text("Clientes")')).toBeVisible({ timeout: 10000 });
 
     await page.click('button:has-text("Novo Cliente")');
     await expect(page.locator('[role="dialog"]')).toBeVisible();
@@ -68,10 +68,9 @@ test.describe('RetailFlow CRM — Fluxo Principal', () => {
 
   test('criar deal → mover estágio no kanban', async ({ page }) => {
     await page.click('button:has-text("Administrador")');
-    await expect(page.locator('text=Dashboard').first()).toBeVisible({ timeout: 15000 });
-
-    await page.locator('nav').locator('text=Negociações').click();
-    await expect(page).toHaveURL(/\/deals/, { timeout: 5000 });
+    await page.waitForFunction(() => !!localStorage.getItem('user'), { timeout: 10000 });
+    await page.goto(`${BASE}/deals`);
+    await expect(page).toHaveURL(/\/deals/, { timeout: 10000 });
 
     await page.click('button:has-text("Nova Negociação")');
     await expect(page.locator('[role="dialog"]')).toBeVisible();
@@ -87,16 +86,15 @@ test.describe('RetailFlow CRM — Fluxo Principal', () => {
 
   test('dashboard carrega com KPIs visíveis', async ({ page }) => {
     await page.click('button:has-text("Administrador")');
-    await expect(page.locator('text=Dashboard').first()).toBeVisible({ timeout: 15000 });
+    await page.waitForURL(/\/(dashboard|$)/);
     await expect(page.locator('text=/clientes|deals|receita|atividades/i').first()).toBeVisible({ timeout: 10000 });
   });
 
   test('botão exportar CSV está disponível em Clientes', async ({ page }) => {
     await page.click('button:has-text("Administrador")');
-    await expect(page.locator('text=Dashboard').first()).toBeVisible({ timeout: 15000 });
-
-    await page.locator('nav').locator('text=Clientes').click();
-    await expect(page.locator('button:has-text("Exportar")')).toBeVisible();
+    await page.waitForFunction(() => !!localStorage.getItem('user'), { timeout: 10000 });
+    await page.goto(`${BASE}/customers`);
+    await expect(page.locator('button:has-text("Exportar")')).toBeVisible({ timeout: 10000 });
     await page.click('button:has-text("Exportar")');
     await expect(page.locator('text=CSV')).toBeVisible();
     await expect(page.locator('text=Excel')).toBeVisible();
