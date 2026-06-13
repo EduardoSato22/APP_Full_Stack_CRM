@@ -1,3 +1,9 @@
+## [1.0.12](https://github.com/EduardoSato22/APP_Full_Stack_CRM/compare/v1.0.11...v1.0.12) (2026-06-13)
+
+### Bug Fixes
+
+* **produtos:** corrige LazyInitializationException e substitui catálogo demo ([a22b444](https://github.com/EduardoSato22/APP_Full_Stack_CRM/commit/a22b44423add001e43c17caa3570ea7b57d8e0dd))
+
 ## [1.0.11](https://github.com/EduardoSato22/APP_Full_Stack_CRM/compare/v1.0.10...v1.0.11) (2026-06-13)
 
 ### Bug Fixes
