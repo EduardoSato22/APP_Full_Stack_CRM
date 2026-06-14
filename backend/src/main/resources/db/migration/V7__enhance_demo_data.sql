@@ -65,14 +65,14 @@ BEGIN
     SELECT id INTO v_prod_mon  FROM products WHERE sku = 'HW-MON-32K'    AND user_id = v_uid;
 
     -- Novos deals cobrindo todo o funil
-    -- LEAD
+    -- PROSPECTING (entrada do funil — 'LEAD' não é estágio válido de deal)
     INSERT INTO deals (title, value, probability, stage, customer_id, assigned_to, created_by, created_at, updated_at)
-    VALUES ('Startup Veloz - implantação CRM inicial', 4800.00, 15, 'LEAD',
+    VALUES ('Startup Veloz - implantação CRM inicial', 4800.00, 15, 'PROSPECTING',
             v_cust_bruno, v_sales, v_uid, NOW() - INTERVAL '3 days', NOW())
     RETURNING id INTO v_d_a;
 
     INSERT INTO deals (title, value, probability, stage, customer_id, assigned_to, created_by, created_at, updated_at)
-    VALUES ('Indústria Aço Forte - ERP + infraestrutura completa', 48000.00, 20, 'LEAD',
+    VALUES ('Indústria Aço Forte - ERP + infraestrutura completa', 48000.00, 20, 'PROSPECTING',
             v_cust_diego, v_sales, v_uid, NOW() - INTERVAL '5 days', NOW())
     RETURNING id INTO v_d_b;
 
