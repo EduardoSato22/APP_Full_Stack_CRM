@@ -31,16 +31,33 @@ export function DealsPage() {
   });
 
   const stageMutation = useMutation({
-    mutationFn: ({ dealId, toStage, lostReason }: { dealId: number; toStage: string; lostReason?: string }) => {
+    mutationFn: ({ dealId, toStage, lostReason }: { dealId: number; toStage: string; fromStage: string; lostReason?: string }) => {
       const params = new URLSearchParams({ stage: toStage });
       if (lostReason) params.set('lostReason', lostReason);
       return api(`/api/deals/${dealId}/stage?${params}`, { method: 'PUT' });
     },
+    onMutate: ({ dealId, fromStage, toStage }) => {
+      const snapshot = queryClient.getQueryData<Record<string, Deal[]>>(['deals-kanban']);
+      queryClient.setQueryData<Record<string, Deal[]>>(['deals-kanban'], prev => {
+        if (!prev) return prev;
+        const deal = prev[fromStage]?.find(d => d.id === dealId);
+        if (!deal) return prev;
+        return {
+          ...prev,
+          [fromStage]: (prev[fromStage] ?? []).filter(d => d.id !== dealId),
+          [toStage]: [...(prev[toStage] ?? []), { ...deal, stage: toStage }],
+        };
+      });
+      return { snapshot };
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['deals-kanban'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-summary'] });
     },
-    onError: (e: Error) => setError(e.message),
+    onError: (e: Error, _, context) => {
+      if (context?.snapshot) queryClient.setQueryData(['deals-kanban'], context.snapshot);
+      setError(e.message);
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['deals-kanban'] }),
   });
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -63,19 +80,7 @@ export function DealsPage() {
       lostReason = reason;
     }
 
-    // Optimistic update
-    queryClient.setQueryData<Record<string, Deal[]>>(['deals-kanban'], prev => {
-      if (!prev) return prev;
-      const deal = prev[fromStage]?.find(d => d.id === dealId);
-      if (!deal) return prev;
-      return {
-        ...prev,
-        [fromStage]: (prev[fromStage] ?? []).filter(d => d.id !== dealId),
-        [toStage]: [...(prev[toStage] ?? []), { ...deal, stage: toStage }],
-      };
-    });
-
-    stageMutation.mutate({ dealId, toStage, lostReason });
+    stageMutation.mutate({ dealId, toStage, fromStage, lostReason });
   };
 
   return (

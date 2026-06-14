@@ -15,7 +15,8 @@ import java.util.List;
 @Repository
 public interface DealRepository extends JpaRepository<Deal, Long>, JpaSpecificationExecutor<Deal> {
 
-    List<Deal> findByDeletedAtIsNullAndStageNot(Deal.Stage stage);
+    @Query("SELECT d FROM Deal d WHERE d.deletedAt IS NULL ORDER BY d.createdAt DESC")
+    List<Deal> findActiveForKanban();
 
     @Query("SELECT COUNT(d) FROM Deal d WHERE d.deletedAt IS NULL AND d.stage NOT IN ('WON','LOST')")
     long countActiveDeals();

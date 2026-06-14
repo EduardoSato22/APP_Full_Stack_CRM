@@ -36,6 +36,7 @@ public class CustomerService {
         return (User) userService.loadUserByUsername(email);
     }
 
+    @Transactional(readOnly = true)
     public Page<CustomerResponse> list(String search, Customer.Status status, Pageable pageable) {
         User user = getCurrentUser();
         Specification<Customer> spec = CustomerSpec.hasSearch(search)
@@ -43,8 +44,8 @@ public class CustomerService {
         if (user.getRole() != Role.ADMIN && user.getRole() != Role.MANAGER) {
             spec = spec.and(CustomerSpec.isVisibleToUser(user.getId()));
         }
-        Pageable sorted = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
-                Sort.by(Sort.Direction.DESC, "createdAt"));
+        Sort sort = pageable.getSort().isSorted() ? pageable.getSort() : Sort.by(Sort.Direction.DESC, "createdAt");
+        Pageable sorted = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
         return customerRepository.findAll(spec, sorted).map(customerMapper::toResponse);
     }
 
@@ -62,6 +63,7 @@ public class CustomerService {
         return customerMapper.toResponse(customerRepository.save(customer));
     }
 
+    @Transactional(readOnly = true)
     public CustomerResponse findById(Long id) {
         return customerMapper.toResponse(findOwned(id));
     }

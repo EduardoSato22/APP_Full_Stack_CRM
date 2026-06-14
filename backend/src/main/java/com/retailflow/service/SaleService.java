@@ -26,11 +26,13 @@ public class SaleService {
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
 
+    @Transactional(readOnly = true)
     public Page<SaleResponse> list(Sale.Status status, Long customerId, Pageable pageable) {
         return saleRepository.findFiltered(status, customerId, pageable)
                 .map(SaleResponse::fromEntity);
     }
 
+    @Transactional(readOnly = true)
     public SaleResponse getById(Long id) {
         return SaleResponse.fromEntity(findOrThrow(id));
     }

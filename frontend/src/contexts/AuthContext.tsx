@@ -29,7 +29,7 @@ export const useApi = () => {
     if (res.status === 401) { logout(); throw new Error('Sessão expirada'); }
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
-      throw new Error(body.message || 'Erro no servidor');
+      throw new Error(body.detail ?? body.message ?? 'Erro no servidor');
     }
     if (res.status === 204) return null as T;
     const ct = res.headers.get('content-type') || '';

@@ -42,6 +42,7 @@ public class DealService {
         return (User) userService.loadUserByUsername(email);
     }
 
+    @Transactional(readOnly = true)
     public Page<DealResponse> list(Deal.Stage stage, Long assignedToId, Pageable pageable) {
         Specification<Deal> spec = DealSpec.isVisibleToUser(getCurrentUser().getId())
                 .and(DealSpec.hasStage(stage))
@@ -49,8 +50,9 @@ public class DealService {
         return dealRepository.findAll(spec, pageable).map(dealMapper::toResponse);
     }
 
+    @Transactional(readOnly = true)
     public Map<String, List<DealResponse>> kanban() {
-        return dealRepository.findByDeletedAtIsNullAndStageNot(null)
+        return dealRepository.findActiveForKanban()
                 .stream()
                 .map(dealMapper::toResponse)
                 .collect(Collectors.groupingBy(d -> d.getStage().name()));
@@ -67,6 +69,7 @@ public class DealService {
         return dealMapper.toResponse(dealRepository.save(deal));
     }
 
+    @Transactional(readOnly = true)
     public DealResponse findById(Long id) {
         return dealMapper.toResponse(findOwned(id));
     }
@@ -87,18 +90,33 @@ public class DealService {
         if (newStage == Deal.Stage.LOST && (lostReason == null || lostReason.isBlank())) {
             throw new RuntimeException("Motivo de perda é obrigatório");
         }
+        Deal.Stage oldStage = deal.getStage();
         deal.setStage(newStage);
         deal.setProbabilityByStage();
+
         if (newStage == Deal.Stage.WON || newStage == Deal.Stage.LOST) {
             deal.setClosedAt(LocalDateTime.now());
-            if (newStage == Deal.Stage.WON) {
+            // Incrementa receita somente na transição para WON (evita dupla contagem)
+            if (newStage == Deal.Stage.WON && oldStage != Deal.Stage.WON) {
                 Customer customer = deal.getCustomer();
                 BigDecimal revenue = customer.getTotalRevenue() == null ? BigDecimal.ZERO : customer.getTotalRevenue();
                 customer.setTotalRevenue(revenue.add(deal.getValue() == null ? BigDecimal.ZERO : deal.getValue()));
                 customerRepository.save(customer);
             }
+        } else if (oldStage == Deal.Stage.WON || oldStage == Deal.Stage.LOST) {
+            // Reabertura de deal fechado — limpa campos e estorna receita se era WON
+            deal.setClosedAt(null);
+            deal.setLostReason(null);
+            if (oldStage == Deal.Stage.WON) {
+                Customer customer = deal.getCustomer();
+                BigDecimal revenue = customer.getTotalRevenue() == null ? BigDecimal.ZERO : customer.getTotalRevenue();
+                BigDecimal dealValue = deal.getValue() == null ? BigDecimal.ZERO : deal.getValue();
+                customer.setTotalRevenue(revenue.subtract(dealValue).max(BigDecimal.ZERO));
+                customerRepository.save(customer);
+            }
         }
-        if (lostReason != null) deal.setLostReason(lostReason);
+
+        if (newStage == Deal.Stage.LOST && lostReason != null) deal.setLostReason(lostReason);
         return dealMapper.toResponse(dealRepository.save(deal));
     }
 
