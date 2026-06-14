@@ -1,3 +1,9 @@
+## [1.1.2](https://github.com/EduardoSato22/APP_Full_Stack_CRM/compare/v1.1.1...v1.1.2) (2026-06-14)
+
+### Bug Fixes
+
+* **data:** corrige status COMPLETED invalido em sales e FKs orfas em activities ([88058f4](https://github.com/EduardoSato22/APP_Full_Stack_CRM/commit/88058f4edfb0610c6fc655e83b4c223cbe2aded8))
+
 ## [1.1.1](https://github.com/EduardoSato22/APP_Full_Stack_CRM/compare/v1.1.0...v1.1.1) (2026-06-14)
 
 ### Bug Fixes
