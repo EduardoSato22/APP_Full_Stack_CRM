@@ -1,3 +1,13 @@
+## [1.1.0](https://github.com/EduardoSato22/APP_Full_Stack_CRM/compare/v1.0.12...v1.1.0) (2026-06-14)
+
+### Features
+
+* corrige chart Deals por Estágio, adiciona fotos e portfólio ([7f71d75](https://github.com/EduardoSato22/APP_Full_Stack_CRM/commit/7f71d754536f8a5a984f1faa5430c494a1c910e2))
+
+### Bug Fixes
+
+* **oauth2:** corrige redirect_uri https e remove bloqueio de 135s no health check ([0659718](https://github.com/EduardoSato22/APP_Full_Stack_CRM/commit/06597186f2707d370f537a1d9af58c8391a56869))
+
 ## [1.0.12](https://github.com/EduardoSato22/APP_Full_Stack_CRM/compare/v1.0.11...v1.0.12) (2026-06-13)
 
 ### Bug Fixes
