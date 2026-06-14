@@ -1,7 +1,10 @@
 package com.retailflow.repository;
 
 import com.retailflow.model.Deal;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -15,7 +18,12 @@ import java.util.List;
 @Repository
 public interface DealRepository extends JpaRepository<Deal, Long>, JpaSpecificationExecutor<Deal> {
 
-    @Query("SELECT d FROM Deal d WHERE d.deletedAt IS NULL ORDER BY d.createdAt DESC")
+    // Sem "products" no EntityGraph para evitar in-memory pagination com coleção @ManyToMany
+    @EntityGraph(attributePaths = {"customer", "assignedTo", "createdBy"})
+    @Override
+    Page<Deal> findAll(Specification<Deal> spec, Pageable pageable);
+
+    @Query("SELECT d FROM Deal d LEFT JOIN FETCH d.customer LEFT JOIN FETCH d.assignedTo LEFT JOIN FETCH d.createdBy LEFT JOIN FETCH d.products WHERE d.deletedAt IS NULL ORDER BY d.createdAt DESC")
     List<Deal> findActiveForKanban();
 
     @Query("SELECT COUNT(d) FROM Deal d WHERE d.deletedAt IS NULL AND d.stage NOT IN ('WON','LOST')")

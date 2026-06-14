@@ -46,11 +46,17 @@ public class GlobalExceptionHandler {
         return problemResponse(HttpStatus.NOT_FOUND, "Resource Not Found", ex.getMessage(), request);
     }
 
+    @ExceptionHandler(BusinessRuleException.class)
+    public ResponseEntity<ProblemDetail> handleBusinessRule(
+            BusinessRuleException ex, HttpServletRequest request) {
+        return problemResponse(HttpStatus.BAD_REQUEST, "Business Rule Violation", ex.getMessage(), request);
+    }
+
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ProblemDetail> handleRuntime(
             RuntimeException ex, HttpServletRequest request) {
-        HttpStatus status = resolveStatus(ex.getMessage());
-        return problemResponse(status, status.getReasonPhrase(), ex.getMessage(), request);
+        return problemResponse(HttpStatus.INTERNAL_SERVER_ERROR,
+                "Internal Server Error", ex.getMessage(), request);
     }
 
     @ExceptionHandler(Exception.class)
@@ -78,10 +84,4 @@ public class GlobalExceptionHandler {
         return p;
     }
 
-    private HttpStatus resolveStatus(String message) {
-        if (message == null) return HttpStatus.INTERNAL_SERVER_ERROR;
-        if (message.contains("não encontrado")) return HttpStatus.NOT_FOUND;
-        if (message.contains("negado")) return HttpStatus.FORBIDDEN;
-        return HttpStatus.INTERNAL_SERVER_ERROR;
-    }
 }

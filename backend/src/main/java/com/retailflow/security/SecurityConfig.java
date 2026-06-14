@@ -40,7 +40,7 @@ public class SecurityConfig {
     @Value("${cors.allowed.origins}")
     private String allowedOrigins;
 
-    @Value("${spring.profiles.active:prodution}")
+    @Value("${spring.profiles.active:production}")
     private String activeProfile;
 
     @Value("${frontend.url:http://localhost:5173}")

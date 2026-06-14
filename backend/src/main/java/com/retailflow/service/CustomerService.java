@@ -2,6 +2,8 @@ package com.retailflow.service;
 
 import com.retailflow.dto.CustomerRequest;
 import com.retailflow.dto.CustomerResponse;
+import com.retailflow.exception.BusinessRuleException;
+import com.retailflow.exception.ResourceNotFoundException;
 import com.retailflow.mapper.CustomerMapper;
 import com.retailflow.model.Customer;
 import com.retailflow.model.Role;
@@ -36,6 +38,10 @@ public class CustomerService {
         return (User) userService.loadUserByUsername(email);
     }
 
+    public String currentUserName() {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
+    }
+
     @Transactional(readOnly = true)
     public Page<CustomerResponse> list(String search, Customer.Status status, Pageable pageable) {
         User user = getCurrentUser();
@@ -50,11 +56,11 @@ public class CustomerService {
     }
 
     @Transactional
-    @CacheEvict(value = "dashboard-summary", allEntries = true)
+    @CacheEvict(value = "dashboard-summary", key = "#root.target.currentUserName()")
     public CustomerResponse create(CustomerRequest request) {
         User user = getCurrentUser();
         if (customerRepository.existsByEmailAndUserIdAndDeletedAtIsNull(request.getEmail(), user.getId())) {
-            throw new RuntimeException("Já existe um cliente com este e-mail");
+            throw new BusinessRuleException("Já existe um cliente com este e-mail");
         }
         Customer customer = new Customer();
         customerMapper.updateEntity(request, customer);
@@ -69,13 +75,13 @@ public class CustomerService {
     }
 
     @Transactional
-    @CacheEvict(value = "dashboard-summary", allEntries = true)
+    @CacheEvict(value = "dashboard-summary", key = "#root.target.currentUserName()")
     public CustomerResponse update(Long id, CustomerRequest request) {
         Customer customer = findOwned(id);
         User user = getCurrentUser();
         if (!customer.getEmail().equalsIgnoreCase(request.getEmail()) &&
                 customerRepository.existsByEmailAndUserIdAndDeletedAtIsNull(request.getEmail(), user.getId())) {
-            throw new RuntimeException("Já existe um cliente com este e-mail");
+            throw new BusinessRuleException("Já existe um cliente com este e-mail");
         }
         customerMapper.updateEntity(request, customer);
         resolveRelationships(request, customer);
@@ -83,7 +89,7 @@ public class CustomerService {
     }
 
     @Transactional
-    @CacheEvict(value = "dashboard-summary", allEntries = true)
+    @CacheEvict(value = "dashboard-summary", key = "#root.target.currentUserName()")
     public void delete(Long id) {
         Customer customer = findOwned(id);
         customer.setDeletedAt(LocalDateTime.now());
@@ -92,11 +98,11 @@ public class CustomerService {
 
     private Customer findOwned(Long id) {
         Customer customer = customerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
-        if (customer.getDeletedAt() != null) throw new RuntimeException("Cliente não encontrado");
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado"));
+        if (customer.getDeletedAt() != null) throw new ResourceNotFoundException("Cliente não encontrado");
         User user = getCurrentUser();
         if (user.getRole() == Role.USER && !customer.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Acesso negado");
+            throw new ResourceNotFoundException("Cliente não encontrado");
         }
         return customer;
     }

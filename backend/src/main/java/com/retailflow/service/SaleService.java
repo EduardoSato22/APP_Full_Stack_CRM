@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +27,10 @@ public class SaleService {
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
 
+    public String currentUserName() {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
+    }
+
     @Transactional(readOnly = true)
     public Page<SaleResponse> list(Sale.Status status, Long customerId, Pageable pageable) {
         return saleRepository.findFiltered(status, customerId, pageable)
@@ -38,7 +43,7 @@ public class SaleService {
     }
 
     @Transactional
-    @CacheEvict(value = "dashboard-summary", allEntries = true)
+    @CacheEvict(value = "dashboard-summary", key = "#root.target.currentUserName()")
     public SaleResponse create(SaleRequest request, User currentUser) {
         Customer customer = customerRepository.findById(request.getCustomerId())
                 .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado"));
@@ -69,7 +74,7 @@ public class SaleService {
     }
 
     @Transactional
-    @CacheEvict(value = "dashboard-summary", allEntries = true)
+    @CacheEvict(value = "dashboard-summary", key = "#root.target.currentUserName()")
     public SaleResponse updateStatus(Long id, Sale.Status newStatus) {
         Sale sale = findOrThrow(id);
         sale.setStatus(newStatus);
@@ -77,7 +82,7 @@ public class SaleService {
     }
 
     @Transactional
-    @CacheEvict(value = "dashboard-summary", allEntries = true)
+    @CacheEvict(value = "dashboard-summary", key = "#root.target.currentUserName()")
     public void delete(Long id) {
         findOrThrow(id);
         saleRepository.deleteById(id);
