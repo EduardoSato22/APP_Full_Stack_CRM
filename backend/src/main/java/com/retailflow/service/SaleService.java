@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,8 +36,14 @@ public class SaleService {
 
     @Transactional(readOnly = true)
     public Page<SaleResponse> list(Sale.Status status, Long customerId, Pageable pageable) {
-        return saleRepository.findFiltered(status, customerId, pageable)
-                .map(SaleResponse::fromEntity);
+        Specification<Sale> spec = Specification.where(null);
+        if (status != null) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("status"), status));
+        }
+        if (customerId != null) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("customer").get("id"), customerId));
+        }
+        return saleRepository.findAll(spec, pageable).map(SaleResponse::fromEntity);
     }
 
     @Transactional(readOnly = true)

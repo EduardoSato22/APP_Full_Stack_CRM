@@ -18,8 +18,9 @@ export const useAuth = () => {
 };
 
 export const useApi = () => {
-  const { token, logout } = useAuth();
+  const { logout } = useAuth();
   return useCallback(async <T,>(path: string, options: RequestInit = {}): Promise<T> => {
+    const token = localStorage.getItem('token');
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -35,5 +36,5 @@ export const useApi = () => {
     const ct = res.headers.get('content-type') || '';
     if (ct.includes('application/json')) return res.json() as Promise<T>;
     return null as T;
-  }, [token, logout]);
+  }, [logout]);
 };
