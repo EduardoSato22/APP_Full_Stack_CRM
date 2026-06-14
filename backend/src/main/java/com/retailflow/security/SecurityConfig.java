@@ -1,6 +1,7 @@
 package com.retailflow.security;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,6 +31,7 @@ import java.util.List;
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
+@Slf4j
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
@@ -75,7 +77,10 @@ public class SecurityConfig {
                 ))
                 .oauth2Login(oauth2 -> oauth2
                         .successHandler(oAuth2SuccessHandler)
-                        .failureUrl(frontendUrl + "/oauth2/callback?error=auth_failed")
+                        .failureHandler((req, res, ex) -> {
+                            log.error("OAuth2 falhou [{}]: {}", ex.getClass().getSimpleName(), ex.getMessage(), ex);
+                            res.sendRedirect(frontendUrl + "/oauth2/callback?error=auth_failed");
+                        })
                 )
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
