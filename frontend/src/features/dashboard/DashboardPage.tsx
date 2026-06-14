@@ -100,8 +100,7 @@ export function DashboardPage() {
             {pieData.length > 0
               ? <ResponsiveContainer width="100%" height={220}>
                   <PieChart>
-                    <Pie data={pieData} dataKey="value" cx="50%" cy="50%" outerRadius={80}
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`} labelLine={false} fontSize={11}>
+                    <Pie data={pieData} dataKey="value" cx="50%" cy="50%" outerRadius={80}>
                       {pieData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                     </Pie>
                     <Legend />

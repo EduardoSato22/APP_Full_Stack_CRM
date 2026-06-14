@@ -25,6 +25,37 @@ const TECH_STACK = [
   { category: 'Infra', items: ['Docker Compose', 'GitHub Actions', 'Prometheus', 'Grafana', 'PostgreSQL', 'H2 (dev)'] },
 ];
 
+const PORTFOLIO = [
+  {
+    title: 'Delicatto E-commerce',
+    desc: 'E-commerce full-stack para doceria artesanal. Carrinho em tempo real via Socket.IO, pagamentos PIX e cartão via Mercado Pago, painel admin kanban e upload de imagens com Cloudinary.',
+    stack: ['React 18', 'Node.js', 'Express', 'Socket.IO', 'Prisma', 'PostgreSQL', 'Mercado Pago'],
+    github: 'https://github.com/Eduardo-Sato/dellicato',
+    color: '#EC4899',
+  },
+  {
+    title: 'Drip Landing Page',
+    desc: 'Landing page animada com scroll suave e transições cinematográficas. Animações GSAP com ScrollTrigger, scroll suave Lenis e layout responsivo com Tailwind CSS.',
+    stack: ['React 18', 'TypeScript', 'GSAP', 'ScrollTrigger', 'Lenis', 'Tailwind CSS'],
+    github: 'https://github.com/Eduardo-Sato/drip-landing',
+    color: '#8B5CF6',
+  },
+  {
+    title: 'LR Móveis Planejados',
+    desc: 'Site institucional para loja de móveis planejados. SSR com Next.js 15 Turbopack, TypeScript strict, testes E2E com Playwright e cobertura de unidade com Vitest.',
+    stack: ['Next.js 15', 'TypeScript', 'Tailwind CSS', 'Vitest', 'Playwright'],
+    github: 'https://github.com/Eduardo-Sato/lr-moveis',
+    color: '#10B981',
+  },
+  {
+    title: 'RetailFlow CRM',
+    desc: 'Este projeto — sistema CRM enterprise full-stack com pipeline Kanban, WebSocket real-time, OAuth2, Prometheus + Grafana e conformidade LGPD.',
+    stack: ['Spring Boot 3.2', 'React 18', 'PostgreSQL', 'Redis', 'WebSocket', 'OAuth2'],
+    github: 'https://github.com/Eduardo-Sato/retailflow-crm',
+    color: '#4F46E5',
+  },
+];
+
 const ARCH_DIAGRAM = `
 ┌─────────────────────────────────────────────────────────┐
 │                    Usuário / Browser                    │
@@ -148,6 +179,41 @@ export function LandingPage() {
           ))}
         </Grid>
       </Container>
+
+      {/* Portfólio */}
+      <Container maxWidth="lg" sx={{ py: 8 }}>
+        <Typography variant="h4" fontWeight={700} textAlign="center" gutterBottom>Portfólio</Typography>
+        <Typography variant="body1" color="text.secondary" textAlign="center" mb={5}>
+          Outros projetos desenvolvidos por Eduardo Sato
+        </Typography>
+        <Grid container spacing={3}>
+          {PORTFOLIO.map(proj => (
+            <Grid item xs={12} sm={6} key={proj.title}>
+              <Card elevation={1} sx={{ height: '100%', borderRadius: 3, transition: 'box-shadow .2s', '&:hover': { boxShadow: 6 }, borderTop: `4px solid ${proj.color}` }}>
+                <CardContent>
+                  <Typography variant="h6" fontWeight={700} gutterBottom fontSize={15}>{proj.title}</Typography>
+                  <Typography variant="body2" color="text.secondary" lineHeight={1.7} mb={2}>{proj.desc}</Typography>
+                  <Stack direction="row" flexWrap="wrap" gap={0.8} mb={2}>
+                    {proj.stack.map(t => (
+                      <Chip key={t} label={t} size="small" variant="outlined" sx={{ fontSize: 11 }} />
+                    ))}
+                  </Stack>
+                  <Button
+                    size="small" startIcon={<GitHubIcon />}
+                    href={proj.github} target="_blank" rel="noopener noreferrer"
+                    sx={{ color: proj.color, borderColor: proj.color, '&:hover': { bgcolor: alpha(proj.color, 0.06) } }}
+                    variant="outlined"
+                  >
+                    GitHub
+                  </Button>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      </Container>
+
+      <Divider />
 
       {/* CTA */}
       <Box sx={{ bgcolor: '#0F172A', color: 'white', py: 8, textAlign: 'center', px: 2 }}>
