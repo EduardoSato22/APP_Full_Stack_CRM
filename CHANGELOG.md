@@ -1,3 +1,12 @@
+## [1.1.1](https://github.com/EduardoSato22/APP_Full_Stack_CRM/compare/v1.1.0...v1.1.1) (2026-06-14)
+
+### Bug Fixes
+
+* **api:** corrige 401 por race condition no token e 500 em Sales e Activities ([bf5e586](https://github.com/EduardoSato22/APP_Full_Stack_CRM/commit/bf5e58664d628bbeff4c4a4e6085ea0815b68ef4))
+* **atividades:** corrige 500 adicionando @Transactional(readOnly=true) no ActivityService ([b77d32c](https://github.com/EduardoSato22/APP_Full_Stack_CRM/commit/b77d32c858296174123cff735be8b4c72c25839f))
+* **core:** corrige kanban vazio, crashes 500, erros invisíveis e revenue duplicado ([b8c49dd](https://github.com/EduardoSato22/APP_Full_Stack_CRM/commit/b8c49dd0f16a96109db0896cbec45491fb3e87da))
+* **security:** corrige IDOR em SaleService e mensagens de erro no frontend; reescreve README ([2da9f8d](https://github.com/EduardoSato22/APP_Full_Stack_CRM/commit/2da9f8db7d7c11012ea4af341ebe119f6db541bc))
+
 ## [1.1.0](https://github.com/EduardoSato22/APP_Full_Stack_CRM/compare/v1.0.12...v1.1.0) (2026-06-14)
 
 ### Features
