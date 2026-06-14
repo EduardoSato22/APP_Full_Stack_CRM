@@ -1,3 +1,9 @@
+## [1.1.4](https://github.com/EduardoSato22/APP_Full_Stack_CRM/compare/v1.1.3...v1.1.4) (2026-06-14)
+
+### Bug Fixes
+
+* **migration:** corrige stage='LEAD' para 'PROSPECTING' em V7 (viola deals_stage_check no PostgreSQL) ([c31d57d](https://github.com/EduardoSato22/APP_Full_Stack_CRM/commit/c31d57daa8f49ac369cfdd5284816c99edb54e1d))
+
 ## [1.1.3](https://github.com/EduardoSato22/APP_Full_Stack_CRM/compare/v1.1.2...v1.1.3) (2026-06-14)
 
 ### Bug Fixes
