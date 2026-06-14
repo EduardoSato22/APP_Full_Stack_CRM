@@ -75,3 +75,12 @@ Desktop.ini
 *.tmp
 *.temp
 .cache/
+
+# ========================================
+# CLAUDE CODE (nunca subir ao repo)
+# ========================================
+.claude/
+.claudian/
+CLAUDE.md
+GITHUB_PROFILE_README.md
+*.claudian

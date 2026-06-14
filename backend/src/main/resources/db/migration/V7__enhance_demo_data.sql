@@ -76,9 +76,9 @@ BEGIN
             v_cust_diego, v_sales, v_uid, NOW() - INTERVAL '5 days', NOW())
     RETURNING id INTO v_d_b;
 
-    -- QUALIFIED
+    -- QUALIFICATION
     INSERT INTO deals (title, value, probability, stage, customer_id, assigned_to, created_by, created_at, updated_at)
-    VALUES ('Logística Rápida - modernização rede switches PoE+', 32000.00, 40, 'QUALIFIED',
+    VALUES ('Logística Rápida - modernização rede switches PoE+', 32000.00, 40, 'QUALIFICATION',
             v_cust_karen, v_manager, v_uid, NOW() - INTERVAL '12 days', NOW())
     RETURNING id INTO v_d_c;
 
