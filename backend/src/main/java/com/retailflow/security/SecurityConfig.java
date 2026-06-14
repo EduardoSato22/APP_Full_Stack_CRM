@@ -36,6 +36,7 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final UserDetailsService userDetailsService;
+    private final CookieOAuth2AuthorizationRequestRepository cookieAuthRequestRepository;
 
     @Value("${cors.allowed.origins}")
     private String allowedOrigins;
@@ -76,6 +77,9 @@ public class SecurityConfig {
                         (req, res, ex) -> res.sendError(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")
                 ))
                 .oauth2Login(oauth2 -> oauth2
+                        .authorizationEndpoint(ae -> ae
+                                .authorizationRequestRepository(cookieAuthRequestRepository)
+                        )
                         .successHandler(oAuth2SuccessHandler)
                         .failureHandler((req, res, ex) -> {
                             log.error("OAuth2 falhou [{}]: {}", ex.getClass().getSimpleName(), ex.getMessage(), ex);

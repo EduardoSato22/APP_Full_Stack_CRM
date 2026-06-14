@@ -8,6 +8,7 @@ import {
   Email as EmailIcon, Lock as LockIcon,
   Person as PersonIcon, Storefront as StoreIcon,
 } from '@mui/icons-material';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { API } from '../../constants';
 
@@ -25,6 +26,8 @@ export function LoginPage() {
   const [error, setError] = useState('');
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const { login } = useAuth();
+  const [searchParams] = useSearchParams();
+  const oauthError = searchParams.get('error');
 
   const doLogin = async (email: string, password: string) => {
     setLoading(true); setError('');
@@ -141,6 +144,11 @@ export function LoginPage() {
             <Typography variant="caption" color="text.secondary">ou entre com sua conta</Typography>
           </Divider>
 
+          {oauthError && (
+            <Alert severity="warning" sx={{ mb: 2 }}>
+              Falha ao autenticar com provedor social. Tente novamente ou use e-mail e senha.
+            </Alert>
+          )}
           {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
           <Box component="form" onSubmit={handleSubmit}>
             {!isLogin && (
