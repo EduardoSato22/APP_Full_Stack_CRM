@@ -38,6 +38,7 @@ public class ActivityService {
         return (User) userService.loadUserByUsername(email);
     }
 
+    @Transactional(readOnly = true)
     public Page<ActivityResponse> list(Activity.Status status, Activity.Type type, Long assignedToId, Long customerId, Pageable pageable) {
         Specification<Activity> spec = ActivitySpec.hasStatus(status)
                 .and(ActivitySpec.hasType(type))
@@ -46,11 +47,13 @@ public class ActivityService {
         return activityRepository.findAll(spec, pageable).map(activityMapper::toResponse);
     }
 
+    @Transactional(readOnly = true)
     public List<ActivityResponse> getOverdue() {
         return activityRepository.findOverdue(LocalDateTime.now())
                 .stream().map(activityMapper::toResponse).toList();
     }
 
+    @Transactional(readOnly = true)
     public List<ActivityResponse> getUpcoming(int days) {
         LocalDateTime now = LocalDateTime.now();
         return activityRepository.findUpcoming(now, now.plusDays(days))

@@ -5,8 +5,8 @@ import {
 import {
   Analytics as AnalyticsIcon, GitHub as GitHubIcon,
   Inventory2 as ProductIcon, Notifications as NotificationsIcon,
-  People as PeopleIcon, PlayArrow as DemoIcon,
-  Security as SecurityIcon, Speed as SpeedIcon,
+  OpenInNew as OpenInNewIcon, People as PeopleIcon,
+  PlayArrow as DemoIcon, Security as SecurityIcon, Speed as SpeedIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
@@ -31,6 +31,7 @@ const PORTFOLIO = [
     desc: 'E-commerce full-stack para doceria artesanal. Carrinho em tempo real via Socket.IO, pagamentos PIX e cartão via Mercado Pago, painel admin kanban e upload de imagens com Cloudinary.',
     stack: ['React 18', 'Node.js', 'Express', 'Socket.IO', 'Prisma', 'PostgreSQL', 'Mercado Pago'],
     github: 'https://github.com/Eduardo-Sato/dellicato',
+    liveUrl: 'https://www.doceriadelicatto.com.br/',
     color: '#EC4899',
   },
   {
@@ -38,6 +39,7 @@ const PORTFOLIO = [
     desc: 'Landing page animada com scroll suave e transições cinematográficas. Animações GSAP com ScrollTrigger, scroll suave Lenis e layout responsivo com Tailwind CSS.',
     stack: ['React 18', 'TypeScript', 'GSAP', 'ScrollTrigger', 'Lenis', 'Tailwind CSS'],
     github: 'https://github.com/Eduardo-Sato/drip-landing',
+    liveUrl: null,
     color: '#8B5CF6',
   },
   {
@@ -45,6 +47,7 @@ const PORTFOLIO = [
     desc: 'Site institucional para loja de móveis planejados. SSR com Next.js 15 Turbopack, TypeScript strict, testes E2E com Playwright e cobertura de unidade com Vitest.',
     stack: ['Next.js 15', 'TypeScript', 'Tailwind CSS', 'Vitest', 'Playwright'],
     github: 'https://github.com/Eduardo-Sato/lr-moveis',
+    liveUrl: 'https://lr-moveis-planejados.vercel.app/',
     color: '#10B981',
   },
   {
@@ -52,6 +55,7 @@ const PORTFOLIO = [
     desc: 'Este projeto — sistema CRM enterprise full-stack com pipeline Kanban, WebSocket real-time, OAuth2, Prometheus + Grafana e conformidade LGPD.',
     stack: ['Spring Boot 3.2', 'React 18', 'PostgreSQL', 'Redis', 'WebSocket', 'OAuth2'],
     github: 'https://github.com/Eduardo-Sato/retailflow-crm',
+    liveUrl: 'https://retailflow-front.vercel.app/',
     color: '#4F46E5',
   },
 ];
@@ -198,14 +202,26 @@ export function LandingPage() {
                       <Chip key={t} label={t} size="small" variant="outlined" sx={{ fontSize: 11 }} />
                     ))}
                   </Stack>
-                  <Button
-                    size="small" startIcon={<GitHubIcon />}
-                    href={proj.github} target="_blank" rel="noopener noreferrer"
-                    sx={{ color: proj.color, borderColor: proj.color, '&:hover': { bgcolor: alpha(proj.color, 0.06) } }}
-                    variant="outlined"
-                  >
-                    GitHub
-                  </Button>
+                  <Stack direction="row" spacing={1}>
+                    <Button
+                      size="small" startIcon={<GitHubIcon />}
+                      href={proj.github} target="_blank" rel="noopener noreferrer"
+                      sx={{ color: proj.color, borderColor: proj.color, '&:hover': { bgcolor: alpha(proj.color, 0.06) } }}
+                      variant="outlined"
+                    >
+                      GitHub
+                    </Button>
+                    {proj.liveUrl && (
+                      <Button
+                        size="small" startIcon={<OpenInNewIcon />}
+                        href={proj.liveUrl} target="_blank" rel="noopener noreferrer"
+                        sx={{ color: proj.color, borderColor: proj.color, '&:hover': { bgcolor: alpha(proj.color, 0.06) } }}
+                        variant="outlined"
+                      >
+                        Ver Projeto
+                      </Button>
+                    )}
+                  </Stack>
                 </CardContent>
               </Card>
             </Grid>
@@ -217,24 +233,24 @@ export function LandingPage() {
 
       {/* CTA */}
       <Box sx={{ bgcolor: '#0F172A', color: 'white', py: 8, textAlign: 'center', px: 2 }}>
-        <Typography variant="h4" fontWeight={700} gutterBottom>Pronto para explorar?</Typography>
+        <Typography variant="h4" fontWeight={700} gutterBottom>Gostou do projeto?</Typography>
         <Typography variant="body1" sx={{ opacity: 0.7, mb: 4 }}>
-          Login com um clique — sem cadastro necessário para o demo
+          Confira meu portfólio completo ou acesse o demo deste CRM
         </Typography>
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center">
           <Button
-            variant="contained" size="large"
-            onClick={() => navigate('/login')}
+            variant="contained" size="large" startIcon={<OpenInNewIcon />}
+            href="https://portfolio-sato-steel.vercel.app/" target="_blank" rel="noopener noreferrer"
             sx={{ bgcolor: 'white', color: '#0F172A', '&:hover': { bgcolor: alpha('#fff', 0.9) } }}
           >
-            Acessar Demo
+            Acessar Portfólio
           </Button>
           <Button
-            variant="outlined" size="large"
-            onClick={() => navigate('/about')}
-            sx={{ borderColor: 'rgba(255,255,255,0.4)', color: 'white', '&:hover': { borderColor: 'white' } }}
+            variant="outlined" size="large" startIcon={<DemoIcon />}
+            onClick={() => navigate('/login')}
+            sx={{ borderColor: 'rgba(255,255,255,0.4)', color: 'white', '&:hover': { borderColor: 'white', bgcolor: alpha('#fff', 0.06) } }}
           >
-            Sobre o Desenvolvedor
+            Ver Demo
           </Button>
         </Stack>
       </Box>
