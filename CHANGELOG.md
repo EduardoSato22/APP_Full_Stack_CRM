@@ -1,3 +1,9 @@
+## [1.1.3](https://github.com/EduardoSato22/APP_Full_Stack_CRM/compare/v1.1.2...v1.1.3) (2026-06-14)
+
+### Bug Fixes
+
+* **config:** datasource no application.properties base para tolerar typo no SPRING_PROFILES_ACTIVE do Render ([cb9f23c](https://github.com/EduardoSato22/APP_Full_Stack_CRM/commit/cb9f23c54c9fdb25c51c3f1e2f8116cd195e5f38))
+
 ## [1.1.2](https://github.com/EduardoSato22/APP_Full_Stack_CRM/compare/v1.1.1...v1.1.2) (2026-06-14)
 
 ### Bug Fixes
