@@ -10,6 +10,12 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
+const SCREENSHOTS = [
+  { img: '/screenshots/login.png', label: 'Login com OAuth2 Social', path: '/login' },
+  { img: '/screenshots/dashboard.png', label: 'Dashboard & Pipeline', path: '/' },
+  { img: '/screenshots/activities.png', label: 'Gestão de Atividades', path: '/activities' },
+];
+
 const FEATURES = [
   { icon: <PeopleIcon />, title: 'Gestão de Clientes', desc: 'CRM completo com filtros avançados via JPA Specifications, upload de foto e histórico de atividades.' },
   { icon: <AnalyticsIcon />, title: 'Pipeline de Vendas', desc: 'Kanban com drag-and-drop dnd-kit, funil de conversão e receita por stage em tempo real.' },
@@ -120,6 +126,40 @@ export function LandingPage() {
               GitHub
             </Button>
           </Stack>
+        </Container>
+      </Box>
+
+      {/* Screenshots */}
+      <Box sx={{ bgcolor: alpha(theme.palette.primary.main, 0.04), py: 8 }}>
+        <Container maxWidth="lg">
+          <Typography variant="h4" fontWeight={700} textAlign="center" gutterBottom>
+            Interface do Sistema
+          </Typography>
+          <Typography variant="body1" color="text.secondary" textAlign="center" mb={5}>
+            Capturas reais do RetailFlow CRM em funcionamento
+          </Typography>
+          <Grid container spacing={3}>
+            {SCREENSHOTS.map(s => (
+              <Grid item xs={12} md={4} key={s.label}>
+                <Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden', transition: 'box-shadow .2s', '&:hover': { boxShadow: 8 } }}>
+                  <Box sx={{ bgcolor: '#E2E8F0', px: 1.5, py: 0.8, display: 'flex', alignItems: 'center', gap: 0.7 }}>
+                    <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: '#FC615D', flexShrink: 0 }} />
+                    <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: '#FDBC40', flexShrink: 0 }} />
+                    <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: '#34C749', flexShrink: 0 }} />
+                    <Box sx={{ ml: 1, flexGrow: 1, bgcolor: 'white', borderRadius: 1, px: 1, py: 0.3 }}>
+                      <Typography sx={{ fontSize: 10, color: '#64748B', fontFamily: 'monospace', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        retailflow-front.vercel.app{s.path}
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box component="img" src={s.img} alt={s.label} sx={{ width: '100%', display: 'block', aspectRatio: '16/10', objectFit: 'cover', objectPosition: 'top' }} />
+                  <Box sx={{ px: 2, py: 1.2, textAlign: 'center', bgcolor: 'background.paper' }}>
+                    <Typography variant="body2" fontWeight={600} color="text.primary">{s.label}</Typography>
+                  </Box>
+                </Paper>
+              </Grid>
+            ))}
+          </Grid>
         </Container>
       </Box>
 

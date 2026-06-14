@@ -21,6 +21,18 @@ export const PRIORITY_COLORS: Record<string, string> = {
   LOW: '#64748B', MEDIUM: '#3B82F6', HIGH: '#F59E0B', URGENT: '#EF4444',
 };
 
+export const ACTIVITY_STATUS_LABELS: Record<string, string> = {
+  PENDING: 'Pendente', IN_PROGRESS: 'Em Progresso', DONE: 'Concluída', CANCELLED: 'Cancelada',
+};
+
+export const ACTIVITY_PRIORITY_LABELS: Record<string, string> = {
+  LOW: 'Baixa', MEDIUM: 'Média', HIGH: 'Alta', URGENT: 'Urgente',
+};
+
+export const ACTIVITY_TYPE_LABELS: Record<string, string> = {
+  CALL: 'Ligação', EMAIL: 'E-mail', MEETING: 'Reunião', TASK: 'Tarefa', NOTE: 'Nota', WHATSAPP: 'WhatsApp',
+};
+
 export const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
 export const fmtDate = (d?: string) =>

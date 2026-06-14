@@ -11,7 +11,7 @@ import {
 } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../../contexts/AuthContext';
-import { PRIORITY_COLORS, fmtDate } from '../../constants';
+import { ACTIVITY_PRIORITY_LABELS, ACTIVITY_STATUS_LABELS, PRIORITY_COLORS, fmtDate } from '../../constants';
 import type { Activity, Page } from '../../types';
 import { LoadingCenter } from '../../shared/LoadingCenter';
 import { EmptyState } from '../../shared/EmptyState';
@@ -58,9 +58,9 @@ export function ActivitiesPage() {
         <Button variant="contained" startIcon={<AddIcon />} onClick={() => setDialogOpen(true)}>Nova Atividade</Button>
       </Stack>
 
-      <Stack direction="row" spacing={1}>
-        {['', 'PENDING', 'IN_PROGRESS', 'DONE', 'CANCELLED'].map(s => (
-          <Chip key={s} label={s || 'Todas'}
+      <Stack direction="row" spacing={1} flexWrap="wrap">
+        {(['', 'PENDING', 'IN_PROGRESS', 'DONE', 'CANCELLED'] as const).map(s => (
+          <Chip key={s} label={s ? ACTIVITY_STATUS_LABELS[s] : 'Todas'}
             onClick={() => setStatusFilter(s)}
             color={statusFilter === s ? 'primary' : 'default'}
             variant={statusFilter === s ? 'filled' : 'outlined'} />
@@ -81,8 +81,8 @@ export function ActivitiesPage() {
                   <Box sx={{ flexGrow: 1 }}>
                     <Stack direction="row" alignItems="center" spacing={1}>
                       <Typography fontWeight={600}>{a.title}</Typography>
-                      <Chip label={a.priority} size="small" sx={{ bgcolor: PRIORITY_COLORS[a.priority] + '20', color: PRIORITY_COLORS[a.priority], fontWeight: 600, height: 20 }} />
-                      <Chip label={a.status} size="small" variant="outlined" sx={{ height: 20 }} />
+                      <Chip label={ACTIVITY_PRIORITY_LABELS[a.priority] ?? a.priority} size="small" sx={{ bgcolor: PRIORITY_COLORS[a.priority] + '20', color: PRIORITY_COLORS[a.priority], fontWeight: 600, height: 20 }} />
+                      <Chip label={ACTIVITY_STATUS_LABELS[a.status] ?? a.status} size="small" variant="outlined" sx={{ height: 20 }} />
                     </Stack>
                     {a.description && <Typography variant="body2" color="text.secondary">{a.description}</Typography>}
                     <Stack direction="row" spacing={2} mt={0.5}>
