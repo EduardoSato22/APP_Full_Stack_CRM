@@ -28,6 +28,7 @@ export function SalesPage() {
   const qc = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [filterStatus, setFilterStatus] = useState('');
+  const [mutationError, setMutationError] = useState('');
   const [form, setForm] = useState({ customerId: '', items: [{ productId: '', quantity: 1 }] as { productId: string; quantity: number }[], notes: '' });
 
   const { data: sales, isLoading, error } = useQuery<{ content: Sale[] }>({
@@ -48,12 +49,14 @@ export function SalesPage() {
   const createMutation = useMutation({
     mutationFn: (body: object) => api('/api/sales', { method: 'POST', body: JSON.stringify(body) }),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['sales'] }); setDialogOpen(false); resetForm(); },
+    onError: (e: Error) => setMutationError(e.message),
   });
 
   const statusMutation = useMutation({
     mutationFn: ({ id, status }: { id: number; status: string }) =>
       api(`/api/sales/${id}/status?status=${status}`, { method: 'PATCH' }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['sales'] }),
+    onError: (e: Error) => setMutationError(e.message),
   });
 
   const resetForm = () => setForm({ customerId: '', items: [{ productId: '', quantity: 1 }], notes: '' });
@@ -90,6 +93,7 @@ export function SalesPage() {
         </FormControl>
       </Stack>
 
+      {mutationError && <Alert severity="error" onClose={() => setMutationError('')} sx={{ mb: 2 }}>{mutationError}</Alert>}
       {isLoading && <CircularProgress />}
       {error && <Alert severity="error">Erro ao carregar vendas</Alert>}
 

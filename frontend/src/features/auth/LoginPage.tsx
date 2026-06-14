@@ -34,7 +34,7 @@ export function LoginPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
-      if (!res.ok) { const b = await res.json().catch(() => ({})); throw new Error(b.message || 'Erro'); }
+      if (!res.ok) { const b = await res.json().catch(() => ({})); throw new Error(b.detail ?? b.message ?? 'Erro'); }
       const data = await res.json();
       login({ userId: data.userId, name: data.name, email: data.email, role: data.role }, data.token);
     } catch (err) {
@@ -53,7 +53,7 @@ export function LoginPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      if (!res.ok) { const b = await res.json().catch(() => ({})); throw new Error(b.message || 'Erro'); }
+      if (!res.ok) { const b = await res.json().catch(() => ({})); throw new Error(b.detail ?? b.message ?? 'Erro'); }
       const data = await res.json();
       login({ userId: data.userId, name: data.name, email: data.email, role: data.role }, data.token);
     } catch (err) {

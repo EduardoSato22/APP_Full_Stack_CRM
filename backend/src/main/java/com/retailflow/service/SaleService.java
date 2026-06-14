@@ -3,11 +3,12 @@ package com.retailflow.service;
 import com.retailflow.dto.SaleItemRequest;
 import com.retailflow.dto.SaleRequest;
 import com.retailflow.dto.SaleResponse;
+import com.retailflow.exception.ResourceNotFoundException;
 import com.retailflow.model.*;
 import com.retailflow.repository.CustomerRepository;
 import com.retailflow.repository.ProductRepository;
 import com.retailflow.repository.SaleRepository;
-import jakarta.persistence.EntityNotFoundException;
+import com.retailflow.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
@@ -26,6 +27,7 @@ public class SaleService {
     private final SaleRepository saleRepository;
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
+    private final UserRepository userRepository;
 
     public String currentUserName() {
         return SecurityContextHolder.getContext().getAuthentication().getName();
@@ -46,7 +48,7 @@ public class SaleService {
     @CacheEvict(value = "dashboard-summary", key = "#root.target.currentUserName()")
     public SaleResponse create(SaleRequest request, User currentUser) {
         Customer customer = customerRepository.findById(request.getCustomerId())
-                .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado"));
 
         Sale sale = new Sale();
         sale.setCustomer(customer);
@@ -57,7 +59,7 @@ public class SaleService {
         BigDecimal total = BigDecimal.ZERO;
         for (SaleItemRequest itemReq : request.getItems()) {
             Product product = productRepository.findById(itemReq.getProductId())
-                    .orElseThrow(() -> new EntityNotFoundException("Produto " + itemReq.getProductId() + " não encontrado"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Produto " + itemReq.getProductId() + " não encontrado"));
 
             SaleItem item = new SaleItem();
             item.setSale(sale);
@@ -89,7 +91,14 @@ public class SaleService {
     }
 
     private Sale findOrThrow(Long id) {
-        return saleRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Venda não encontrada"));
+        Sale sale = saleRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Venda não encontrada"));
+        User current = userRepository.findByEmail(currentUserName())
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+        if (current.getRole() == Role.USER &&
+                (sale.getCreatedBy() == null || !sale.getCreatedBy().getId().equals(current.getId()))) {
+            throw new ResourceNotFoundException("Venda não encontrada");
+        }
+        return sale;
     }
 }
