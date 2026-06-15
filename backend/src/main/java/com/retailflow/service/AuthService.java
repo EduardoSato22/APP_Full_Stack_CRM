@@ -71,8 +71,11 @@ public class AuthService {
         refreshTokenRepository.revokeAllByUserId(userId);
     }
 
+    @Transactional
     public AuthResponse buildResponse(User user) {
-        return buildAuthResponse(user);
+        User fresh = userRepository.findById(user.getId())
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        return buildAuthResponse(fresh);
     }
 
     @Transactional
